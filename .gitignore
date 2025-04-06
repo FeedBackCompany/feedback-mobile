@@ -2,6 +2,8 @@
 
 # dependencies
 node_modules/
+lib/supabase.ts
+.env
 
 # Expo
 .expo/
