@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import Auth from './components/Auth'
-import Account from './components/Account'
-import { View } from 'react-native'
 import { Session } from '@supabase/supabase-js'
-import Layout from './components/Layout'
 import { NavigationContainer } from '@react-navigation/native';
 import BottomTabs from './components/BottomTabs';
 
