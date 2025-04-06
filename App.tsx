@@ -23,8 +23,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {!session || !session?.user && <Auth />}
-      <BottomTabs />
+      {session ? <BottomTabs /> : <Auth />}
     </NavigationContainer>
   )
 }
