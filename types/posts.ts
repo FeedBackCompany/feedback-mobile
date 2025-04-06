@@ -15,3 +15,11 @@ export enum PostStatus {
     UNDER_REVIEW = "UNDER_REVIEW", 
     HIDDEN = "HIDDEN"
 }
+
+export interface PostImage {
+    id: string;
+    post_id: string;
+    user_id: string;
+    image_url: string;
+    created_at: string;
+}
