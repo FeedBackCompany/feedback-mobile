@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
+import { EventRegister } from 'react-native-event-listeners';
 
 export default function AdminSettings({ navigation }: any) {
     const { logoutUser } = useCurrentUser();
@@ -8,7 +9,7 @@ export default function AdminSettings({ navigation }: any) {
     const handleLogout = async () => {
         const { error } = await logoutUser();
         if (!error) {
-            navigation.reset({ index: 0, routes: [{ name: 'Auth' }] })
+            EventRegister.emit('logout');
         }
     }
 

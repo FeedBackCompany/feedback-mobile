@@ -1,87 +1,47 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph, Text } from 'react-native-paper';
-import type { PostWithRelations } from '../types/posts';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import { Title, Paragraph, Text } from 'react-native-paper';
 import { CurrencyDisplay } from './ui/CurrencyDisplay';
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useBookmarks } from '../hooks/useBookmarks';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCurrentPost } from '../hooks/useCurrentPost';
 
-interface CompanyPostProps {
-    post: PostWithRelations;
-}
+export default function CompanyPost({ _route, navigation }: any) {
+    const { currentPost, clearCurrentPost } = useCurrentPost();
 
-export default function CompanyPost({ post }: CompanyPostProps) {
-    const { id, title, description, reward, status, company } = post;
-    const { name, avatar_url } = company;
-    const { addBookmark, removeBookmark, isBookmarked } = useBookmarks();
-    
-    const handleBookmarkClick = () => {
-        if (isBookmarked(id)) {
-            removeBookmark(id);
-        } else {
-            addBookmark(id);
-        }
+    const handleNavigateToFeedClick = () => {
+        clearCurrentPost();
+        navigation.navigate('Feed Page');
     }
 
-    const renderRightActions = () => {
-        return (
-            <View style={{ margin: 12 }}>
-                <TouchableOpacity 
-                    onPress={handleBookmarkClick}
-                    style={{ 
-                        height: 100, 
-                        width: 150, 
-                        backgroundColor: 'goldenrod',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}
-                >
-                    <Text style={{ color: 'black' }}>{isBookmarked(id) ? 'Remove Bookmark' : 'Bookmark'}</Text>
-                    <FontAwesome name={`bookmark${isBookmarked(id) ? '' : '-o'}`} size={24} color="black" />
-                </TouchableOpacity>
-                <View style={{ 
-                    height: 100, 
-                    width: 150, 
-                    backgroundColor: 'darkgray',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <Text style={{ color: 'white', marginBottom: 3 }}>Go to</Text>
-                    <Text style={{ color: 'white' }}>{name}'s Profile</Text>
-                </View>
-            </View>
-        );
-    };
+    if (!currentPost) return (
+        <SafeAreaView style={styles.container}>
+            <Text>Unable to find post {':('}</Text>
+            <TouchableOpacity 
+                onPress={handleNavigateToFeedClick}
+            >
+                <Text>{'<-'} Go to your feed</Text>
+            </TouchableOpacity>
+        </SafeAreaView>
+    )
+
+    const { name, title, description, reward, status } = currentPost;
 
     return (
-        <ReanimatedSwipeable
-            friction={2}
-            renderRightActions={renderRightActions}
-            rightThreshold={30}
-        >
-            <Card style={styles.card}>
-                {avatar_url && <Card.Cover source={{ uri: avatar_url }} />}
-                <Card.Content>
-                    <Title>{name}</Title>
-                    <Title>{title}</Title>
-                    <Paragraph>{description}</Paragraph>
-                    <Text variant="labelMedium">
-                        Reward:
-                        <CurrencyDisplay amount={reward} />
-                    </Text>
-                    <Text variant="labelMedium">Status: {status}</Text>
-                </Card.Content>
-            </Card>
-        </ReanimatedSwipeable>
+        <SafeAreaView style={styles.container}>
+            <Title>{name}</Title>
+            <Title>{title}</Title>
+            <Paragraph>{description}</Paragraph>
+            <Text variant="labelMedium">
+                Reward:
+                <CurrencyDisplay amount={reward} />
+            </Text>
+            <Text variant="labelMedium">Status: {status}</Text>
+        </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
-    card: {
-        height: 210,
-        margin: 12,
-        padding: 12,
-        borderRadius: 3
-    },
+    container: {
+        height: '100%',
+        width: '100%',
+    }
 })

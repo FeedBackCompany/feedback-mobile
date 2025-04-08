@@ -9,14 +9,13 @@ export default function UserComments({ userId }: { userId: string }) {
     useEffect(() => {
         const fetchComments = async () => {
             const { data, error } = await supabase
-                .from('user_comments')
+                .from('comments')
                 .select(`
                     id,
-                    content,
-                    company_post_id,
+                    body,
+                    post_id,
                     created_at,
-                    posts (
-                        title,
+                    posts (*,
                         company_profiles (
                             name
                         )

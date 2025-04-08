@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { supabase } from './lib/supabase'
-import { Session } from '@supabase/supabase-js'
+import React, { useState, useEffect } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
-import BottomTabs from './components/BottomTabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { EventRegister } from 'react-native-event-listeners';
+import { supabase } from './lib/supabase';
+import { Session } from '@supabase/supabase-js';
+
+import AdminSettings from './components/screens/AdminSettings';
+import BottomTabs from './components/BottomTabs';
+import Auth from './components/Auth';
+
 import { BookmarksProvider } from './hooks/useBookmarks';
 import { CurrentUserProvider } from './hooks/useCurrentUser';
-import Auth from './components/Auth'
-import AdminSettings from './components/screens/AdminSettings'
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { CurrentPostProvider } from './hooks/useCurrentPost';
 
 const Stack = createNativeStackNavigator()
 
@@ -25,8 +29,13 @@ export default function App() {
       setSession(session);
     })
 
+    const logout = EventRegister.addEventListener('logout', () => {
+      setSession(null);
+    });
+
     return () => {
-      authListener?.subscription.unsubscribe()
+      authListener?.subscription.unsubscribe();
+      EventRegister.removeEventListener(logout as string);
     }
   }, []);
 
@@ -36,16 +45,18 @@ export default function App() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <CurrentUserProvider session={session}>
             <BookmarksProvider session={session}>
-              <Stack.Navigator>
-                {!session ? (
-                  <Stack.Screen name="Auth" component={Auth} />
-                ) : (
-                  <>
-                    <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
-                    <Stack.Screen name="AdminSettings" component={AdminSettings} />
-                  </>
-                )}
-              </Stack.Navigator>
+              <CurrentPostProvider session={session}>
+                <Stack.Navigator>
+                  {!session ? (
+                    <Stack.Screen name="Auth" component={Auth} />
+                  ) : (
+                    <>
+                      <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
+                      <Stack.Screen name="AdminSettings" component={AdminSettings} />
+                    </>
+                  )}
+                </Stack.Navigator>
+              </CurrentPostProvider>
             </BookmarksProvider>
           </CurrentUserProvider>
         </GestureHandlerRootView>

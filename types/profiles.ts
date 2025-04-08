@@ -5,6 +5,7 @@ export interface Profile {
     avatar_url: string;
     description: string;
     following: string[];
+    comments_are_private: boolean;
     updated_at: string;
     created_at: string;
 }
