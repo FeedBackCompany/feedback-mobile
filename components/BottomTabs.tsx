@@ -24,23 +24,23 @@ const ProfileStack = () => {
 };
 
 export default function BottomTabs() {
-    const getIcon = (page: ScreenName, color: string, size: string) => {
+    const getIcon = (page: ScreenName, color: string, size: number) => {
         let iconName = 'home';
 
         switch (page) {
             case 'Feed':
                 iconName = 'home';
                 break;
-        
+
             case 'Search':
                 // "search-outline" or "search-sharp"
                 iconName = 'search-sharp';
                 break;
-            
+
             case 'Profile':
                 iconName = 'person';
                 break;
-            
+
             default:
                 break;
         }
@@ -50,7 +50,7 @@ export default function BottomTabs() {
 
     return (
         <Tab.Navigator
-            screenOptions={({ route }: ScreenOptions) => ({
+            screenOptions={({ route }: any) => ({
                 tabBarIcon: ({ color, size }: any) => getIcon(route.name, color, size),
                 tabBarActiveTintColor: 'goldenrod',
                 tabBarInactiveTintColor: 'gray',
@@ -65,14 +65,14 @@ export default function BottomTabs() {
         >
             <Tab.Screen name="Feed" component={Feed} />
             <Tab.Screen name="Search" component={Search} />
-            <Tab.Screen 
-                name="Profile" 
-                component={ProfileStack} 
-                options={({ route }) => ({
+            <Tab.Screen
+                name="Profile"
+                component={ProfileStack}
+                options={({ route }: any) => ({
                     headerShown: false,
-                    tabBarActiveTintColor: 
-                        getFocusedRouteNameFromRoute(route) === 'Public Profile' 
-                            ? 'gray' 
+                    tabBarActiveTintColor:
+                        getFocusedRouteNameFromRoute(route) === 'Public Profile'
+                            ? 'gray'
                             : 'goldenrod',
                 })}
             />
