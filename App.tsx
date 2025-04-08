@@ -6,6 +6,7 @@ import { Session } from '@supabase/supabase-js'
 
 import Auth from './components/Auth'
 import BottomTabs from './components/BottomTabs'
+import AdminSettings from './components/screens/AdminSettings'
 
 const Stack = createNativeStackNavigator()
 
@@ -32,7 +33,10 @@ export default function App() {
         {!session ? (
           <Stack.Screen name="Auth" component={Auth} />
         ) : (
-          <Stack.Screen name="Main" component={BottomTabs} />
+          <>
+            <Stack.Screen name="Main" component={BottomTabs} />
+            <Stack.Screen name="AdminSettings" component={AdminSettings} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
