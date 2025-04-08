@@ -50,8 +50,8 @@ export default function BottomTabs() {
 
     return (
         <Tab.Navigator
-            screenOptions={({ route }: ScreenOptions) => ({
-                tabBarIcon: ({ color, size }: { color: string, size: number }) => getIcon(route.name, color, size),
+            screenOptions={({ route }: any) => ({
+                tabBarIcon: ({ color, size }: any) => getIcon(route.name, color, size),
                 tabBarActiveTintColor: 'goldenrod',
                 tabBarInactiveTintColor: 'gray',
                 tabBarStyle: (route.name === 'Your Profile') ? (() => {
@@ -68,7 +68,7 @@ export default function BottomTabs() {
             <Tab.Screen
                 name="Profile"
                 component={ProfileStack}
-                options={({ route }: ScreenOptions) => ({
+                options={({ route }: any) => ({
                     headerShown: false,
                     tabBarActiveTintColor:
                         getFocusedRouteNameFromRoute(route) === 'Public Profile'
