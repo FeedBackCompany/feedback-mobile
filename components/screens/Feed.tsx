@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import type { Post } from '../../types/posts';
+import type { PostWithRelations } from '../../types/posts';
 import { supabase } from '../../lib/supabase';
 import { FlashList } from '@shopify/flash-list';
 import CompanyPost from '../CompanyPost';
 
 export default function Feed() {
     // const [loading, setLoading] = useState<boolean>(false);
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<PostWithRelations[]>([]);
 
     useEffect(() => {
         getPosts();
@@ -17,7 +17,7 @@ export default function Feed() {
         try {
             const { data, error } = await supabase
                 .from('posts')
-                .select('*');
+                .select('*, company:company_profiles(*)');
             
             if (error) throw error;
             
