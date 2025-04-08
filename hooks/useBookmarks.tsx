@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { Bookmark } from '../types/bookmarks';
 import { supabase } from '../lib/supabase'
+import type { Bookmark } from '../types/bookmarks';
+import type { Session } from '@supabase/supabase-js'
 
 type BookmarksContextType = {
     bookmarks: Bookmark[];

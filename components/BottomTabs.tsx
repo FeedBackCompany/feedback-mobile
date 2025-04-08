@@ -11,7 +11,6 @@ type ScreenName = 'Feed' | 'Search' | 'Profile';
 type ScreenOptions = { name: ScreenName, [key: string]: any };
 
 export default function BottomTabs() {
-
     const getIcon = (page: ScreenName, color: string, size: string) => {
         let iconName = 'home';
 
