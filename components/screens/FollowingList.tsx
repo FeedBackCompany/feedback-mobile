@@ -2,19 +2,18 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ActivityIndicator, FlatList, TouchableWithoutFeedback } from 'react-native'
 import { supabase } from '../../lib/supabase'
 import { AntDesign } from '@expo/vector-icons'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 
 const FollowingList = ({ isVisible, onClose, navigation }: any) => {
     const [following, setFollowing] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false);
+    const { user } = useCurrentUser();
 
-    useEffect(() => {
-        const fetchFollowing = async () => {
-            const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-            if (userError || !user) {
-                console.log('Error fetching user:', userError)
-                setLoading(false)
-                return
+    const fetchFollowing = async () => {
+        setLoading(true);
+        try {
+            if (!user) {
+                throw new  Error('Error fetching user')
             }
 
             // Fetch the current user's profile to get the following list
@@ -24,33 +23,37 @@ const FollowingList = ({ isVisible, onClose, navigation }: any) => {
                 .eq('follower_id', user.id)  // Fetch users the current user is following
 
             if (error) {
-                console.log('Error fetching followed profiles:', error)
-            } else {
-                const followedUserIds = followedProfiles?.map((profile: any) => profile.followed_id)
-                if (followedUserIds && followedUserIds.length > 0) {
-                    const { data: profiles, error: profilesError } = await supabase
-                        .from('profiles')
-                        .select('id, username, avatar_url')  // Fetch profile details
-                        .in('id', followedUserIds)
-
-                    if (profilesError) {
-                        console.log('Error fetching profiles:', profilesError)
-                    } else {
-                        setFollowing(profiles || [])
-                    }
-                }
+                throw new Error('Error fetching followed profiles:', error)
             }
+            
+            const followedUserIds = followedProfiles.map((profile: any) => profile.followed_id)
+            if (followedUserIds.length > 0) {
+                const { data: profiles, error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('id, username, avatar_url')  // Fetch profile details
+                    .in('id', followedUserIds)
 
+                if (profilesError) {
+                    throw new Error('Error fetching profiles:', profilesError)
+                } 
+
+                setFollowing(profiles)
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
             setLoading(false)
         }
+    }
 
+    useEffect(() => {
         if (isVisible) {
             fetchFollowing()
         }
     }, [isVisible])
 
     const handleProfileClick = (userId: string) => {
-        navigation.navigate('Profile', { userId }) // Navigate to the profile page with the user ID
+        navigation.navigate('Public Profile', { userId }) // Navigate to the profile page with the user ID
         onClose() // Close the modal
     }
 

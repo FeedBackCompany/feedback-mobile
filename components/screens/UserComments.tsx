@@ -40,7 +40,6 @@ export default function UserComments({ userId }: { userId: string }) {
     };
 
     const handleCommentPress = (companyPostId: string) => {
-        console.log(`Navigating to post with ID: ${companyPostId}`);
         // navigation.navigate('PostDetails', { postId: companyPostId });
     };
 

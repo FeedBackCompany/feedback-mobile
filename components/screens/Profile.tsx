@@ -5,15 +5,15 @@ import { MaterialIcons, AntDesign } from '@expo/vector-icons'
 import FollowingList from './FollowingList'
 import UserComments from './UserComments';
 import { useCurrentUser } from '../../hooks/useCurrentUser'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Profile({ route, navigation }: any) {
     const [profile, setProfile] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [isModalVisible, setIsModalVisible] = useState(false)
-    const [currentUser, setCurrentUser] = useState<any>(null)
     const [isFollowing, setIsFollowing] = useState(false)
     const [commentsError, setCommentsError] = useState(false);
-    const { user, logoutUser } = useCurrentUser();
+    const { user } = useCurrentUser();
 
     const isMounted = useRef(true)
     const loadingRef = useRef(true)
@@ -32,19 +32,13 @@ export default function Profile({ route, navigation }: any) {
         }
     }, [])
 
-    useEffect(() => {
-        return () => {
-            isMounted.current = false
-        }
-    }, [])
-
     const fetchData = useCallback(async () => {
         try {
             if (!isMounted.current) return
             loadingRef.current = true
             setLoading(true)
 
-            if (userError || !user) throw userError || new Error('No user found')
+            if (!user) throw new Error('No user found')
 
             const idToFetch = route.params?.userId || user.id
             const [{ data: profileData }, { data: followData }] = await Promise.all([
@@ -56,7 +50,6 @@ export default function Profile({ route, navigation }: any) {
 
             if (!isMounted.current) return
 
-            setCurrentUser(user)
             setProfile(profileData)
 
             // Set isFollowing based on whether the follow exists in the 'follows' table
@@ -86,31 +79,31 @@ export default function Profile({ route, navigation }: any) {
             }
         })
 
-        fetchData()
+        fetchData();
 
         return () => {
             unsubscribe()
         }
     }, [fetchData, navigation])
 
-    const isOwnProfile = currentUser?.id === profile?.id
+    const isOwnProfile = user?.id === profile?.id
 
     const toggleFollow = async () => {
         const { data: _, error: fetchError } = await supabase
             .from('profiles')
             .select('following')
-            .eq('id', currentUser.id)
+            .eq('id', user.id)
             .single()
 
         if (fetchError) return
 
-        const viewedUserId = route.params?.userId || currentUser?.id
+        const viewedUserId = route.params?.userId || user?.id
 
         // Check if the user is already following
         const { data: followData, error: followError } = await supabase
             .from('follows')
             .select('*')
-            .eq('follower_id', currentUser.id)
+            .eq('follower_id', user.id)
             .eq('followed_id', viewedUserId)
             .single()
 
@@ -125,7 +118,7 @@ export default function Profile({ route, navigation }: any) {
             await supabase
                 .from('follows')
                 .delete()
-                .eq('follower_id', currentUser.id)
+                .eq('follower_id', user.id)
                 .eq('followed_id', viewedUserId)
 
             setIsFollowing(false)
@@ -133,7 +126,7 @@ export default function Profile({ route, navigation }: any) {
             // Follow the user (insert a new follow record)
             await supabase
                 .from('follows')
-                .insert([{ follower_id: currentUser.id, followed_id: viewedUserId }])
+                .insert([{ follower_id: user.id, followed_id: viewedUserId }])
 
             setIsFollowing(true)
         }
@@ -141,10 +134,6 @@ export default function Profile({ route, navigation }: any) {
 
     const handleOpenModal = () => setIsModalVisible(true)
     const handleCloseModal = () => setIsModalVisible(false)
-
-    const goToMyProfile = () => {
-        navigation.setParams({ userId: currentUser?.id })
-    }
 
     if (loadingRef.current || loading) {
         return (
@@ -162,8 +151,8 @@ export default function Profile({ route, navigation }: any) {
         )
     }
 
-    try {
-        return (
+    return (
+        <SafeAreaView style={styles.container} edges={['top']}>
             <View style={styles.container}>
                 <View style={styles.profileHeader}>
                     <View style={styles.avatarContainer}>
@@ -200,9 +189,6 @@ export default function Profile({ route, navigation }: any) {
                                 {isFollowing ? 'Unfollow' : 'Follow'}
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={goToMyProfile} style={styles.backButton}>
-                            <Text style={styles.backButtonText}>Back to My Profile</Text>
-                        </TouchableOpacity>
                     </View>
                 )}
 
@@ -232,15 +218,8 @@ export default function Profile({ route, navigation }: any) {
                     </Text>
                 ) : null}
             </View>
-        )
-    } catch (e) {
-        console.error('Render error:', e)
-        return (
-            <View style={styles.centered}>
-                <Text>Something went wrong while loading this profile.</Text>
-            </View>
-        )
-    }
+        </SafeAreaView>
+    )
 }
 
 const styles = StyleSheet.create({

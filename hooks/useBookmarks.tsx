@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase'
 import type { Bookmark } from '../types/bookmarks';
 import type { Session } from '@supabase/supabase-js'
@@ -44,7 +44,7 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
             console.error('Error adding bookmark:', error);
             return { data: null, error };
         }
-    }, []);
+    }, [session]);
 
     const removeBookmark = useCallback(async (postId: string) => {
         try {
@@ -63,7 +63,7 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
             console.error('Error removing bookmark:', error);
             return { error };
         }
-    }, []);
+    }, [session]);
 
     const fetchUsersBookmarks = async () => {
         try {
@@ -79,11 +79,17 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
             console.error(error);
         }
     }
-
+    
     const isBookmarked = (postId: string): boolean => {
         return bookmarks.filter(bookmark => bookmark.post_id === postId).length > 0;
     }
-
+    
+    useEffect(() => {
+        if (session?.user) {
+            fetchUsersBookmarks();
+        }
+    }, [session]);
+    
     return (
         <BookmarksContext.Provider 
             value={{ 

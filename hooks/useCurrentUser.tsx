@@ -1,11 +1,11 @@
 import type { User, Session } from '@supabase/supabase-js'
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase'
 
 type CurrentUserContextType = {
-    user: User;
-    setUser: (user: User) => void;
-    logoutUser: () => void;
+    user: User | null;
+    setUser: (user: User | null) => void;
+    logoutUser: () => Promise<{ error: any }>;
     email: () => string;
 };
 
@@ -19,7 +19,7 @@ interface CurrentUserProviderProps {
 export function CurrentUserProvider({ children, session }: CurrentUserProviderProps) {
     const [user, setUser] = useState<User | null>(null);
 
-    useEffect(async () => {
+    useEffect(() => {
         if (session?.user) setUser(session.user);
     }, [session])
 
@@ -32,16 +32,17 @@ export function CurrentUserProvider({ children, session }: CurrentUserProviderPr
             console.error(err);
             return { error: err }
         }
-    })
+    }, [])
 
-    const email = () => user?.email || '';
+    const email = useCallback(() => user?.email || '', [user]);
 
     return (
         <CurrentUserContext.Provider 
             value={{
-                user, 
-                logoutUser, 
-                email, 
+                user,
+                setUser,
+                logoutUser,
+                email,
             }}
         >
             {children}
