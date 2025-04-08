@@ -153,71 +153,69 @@ export default function Profile({ route, navigation }: any) {
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <View style={styles.container}>
-                <View style={styles.profileHeader}>
-                    <View style={styles.avatarContainer}>
-                        <AntDesign name="user" size={50} color="gray" />
-                    </View>
-                    <View style={styles.profileInfo}>
-                        <Text style={styles.username}>{profile.username}</Text>
-                        <Text style={styles.fullName}>{profile.full_name}</Text>
-                    </View>
-                    {isOwnProfile && (
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('AdminSettings')}
-                            style={styles.adminIcon}
-                        >
-                            <MaterialIcons name="admin-panel-settings" size={24} color="black" />
-                        </TouchableOpacity>
-                    )}
+            <View style={styles.profileHeader}>
+                <View style={styles.avatarContainer}>
+                    <AntDesign name="user" size={50} color="gray" />
                 </View>
-
-                <Text style={styles.description}>{profile.description || 'No description yet.'}</Text>
-                <View style={styles.separator} />
-
-                {isOwnProfile ? (
-                    // Hide the "Following" button when the modal is visible
-                    !isModalVisible && (
-                        <TouchableOpacity onPress={handleOpenModal} style={styles.followingButton}>
-                            <Text style={styles.followingButtonText}>Following</Text>
-                        </TouchableOpacity>
-                    )
-                ) : (
-                    <View style={styles.buttonGroup}>
-                        <TouchableOpacity onPress={toggleFollow} style={styles.followingButton}>
-                            <Text style={styles.followingButtonText}>
-                                {isFollowing ? 'Unfollow' : 'Follow'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                <View style={styles.profileInfo}>
+                    <Text style={styles.username}>{profile.username}</Text>
+                    <Text style={styles.fullName}>{profile.full_name}</Text>
+                </View>
+                {isOwnProfile && (
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('AdminSettings')}
+                        style={styles.adminIcon}
+                    >
+                        <MaterialIcons name="admin-panel-settings" size={24} color="black" />
+                    </TouchableOpacity>
                 )}
-
-                <FollowingList
-                    isVisible={isModalVisible}
-                    onClose={handleCloseModal}
-                    navigation={navigation}
-                />
-
-                {profile.id && !commentsError ? (
-                    (() => {
-                        try {
-                            return <UserComments userId={profile.id} />
-                        } catch (e) {
-                            console.error('UserComments crashed:', e)
-                            setCommentsError(true)
-                            return (
-                                <Text style={{ textAlign: 'center', marginTop: 10, color: 'gray' }}>
-                                    Could not load comments.
-                                </Text>
-                            )
-                        }
-                    })()
-                ) : commentsError ? (
-                    <Text style={{ textAlign: 'center', marginTop: 10, color: 'gray' }}>
-                        Could not load comments.
-                    </Text>
-                ) : null}
             </View>
+
+            <Text style={styles.description}>{profile.description || 'No description yet.'}</Text>
+            <View style={styles.separator} />
+
+            {isOwnProfile ? (
+                // Hide the "Following" button when the modal is visible
+                !isModalVisible && (
+                    <TouchableOpacity onPress={handleOpenModal} style={styles.followingButton}>
+                        <Text style={styles.followingButtonText}>Following</Text>
+                    </TouchableOpacity>
+                )
+            ) : (
+                <View style={styles.buttonGroup}>
+                    <TouchableOpacity onPress={toggleFollow} style={styles.followingButton}>
+                        <Text style={styles.followingButtonText}>
+                            {isFollowing ? 'Unfollow' : 'Follow'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            <FollowingList
+                isVisible={isModalVisible}
+                onClose={handleCloseModal}
+                navigation={navigation}
+            />
+
+            {profile.id && !commentsError ? (
+                (() => {
+                    try {
+                        return <UserComments userId={profile.id} />
+                    } catch (e) {
+                        console.error('UserComments crashed:', e)
+                        setCommentsError(true)
+                        return (
+                            <Text style={{ textAlign: 'center', marginTop: 10, color: 'gray' }}>
+                                Could not load comments.
+                            </Text>
+                        )
+                    }
+                })()
+            ) : commentsError ? (
+                <Text style={{ textAlign: 'center', marginTop: 10, color: 'gray' }}>
+                    Could not load comments.
+                </Text>
+            ) : null}
         </SafeAreaView>
     )
 }
