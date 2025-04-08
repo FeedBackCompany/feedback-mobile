@@ -89,6 +89,8 @@ export default function Profile({ route, navigation }: any) {
     const isOwnProfile = user?.id === profile?.id
 
     const toggleFollow = async () => {
+        if (!user) return;
+
         const { data: _, error: fetchError } = await supabase
             .from('profiles')
             .select('following')
