@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -18,35 +18,23 @@ const FeedStack = () => {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Feed Page" component={Feed} options={{ headerShown: false }} />
-            <Stack.Screen 
-                name="Company Post" 
-                component={CompanyPost} 
-                options={{ 
-                    headerShown: false, 
+            <Stack.Screen
+                name="Company Post"
+                component={CompanyPost}
+                options={{
+                    headerShown: false,
                     animation: 'fade',
                     presentation: 'card',
-                    animationDuration: 100,
-                    transitionSpec: {
-                        open: {
-                            animation: 'timing',
-                            config: {
-                                duration: 100,
-                            },
-                        },
-                        close: {
-                            animation: 'timing',
-                            config: {
-                                duration: 100,
-                            },
-                        },
-                    },
-                }} 
+                    animationDuration: 100
+                }}
             />
         </Stack.Navigator>
     );
 };
 
 export default function BottomTabs() {
+    const [initialLoad, setInitialLoad] = useState(true);
+
     const getIcon = (page: ScreenName, color: string, size: number) => {
         let iconName = 'home';
         switch (page) {
@@ -75,12 +63,13 @@ export default function BottomTabs() {
             })}
         >
             <Tab.Screen
-                name="Feed" 
-                component={FeedStack} 
+                name="Feed"
+                component={FeedStack}
                 options={({ route }: any) => ({
                     headerShown: false,
                     tabBarActiveTintColor:
-                        getFocusedRouteNameFromRoute(route) === 'Feed Page'
+                        route.name === 'Feed' && getFocusedRouteNameFromRoute(route) !== 'Company Post' ||
+                            getFocusedRouteNameFromRoute(route) === 'Feed Page'
                             ? 'goldenrod'
                             : 'gray',
                 })}
