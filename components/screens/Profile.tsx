@@ -173,7 +173,7 @@ export default function Profile({ route, navigation }: any) {
                 )}
             </View>
 
-            <Text style={styles.description}>{profile.description || 'No description yet.'}</Text>
+            <Text style={styles.description}>{profile.description || 'No bio'}</Text>
             <View style={styles.separator} />
 
             {isOwnProfile ? (
