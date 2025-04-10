@@ -69,25 +69,27 @@ export default function BottomTabs() {
         <Tab.Navigator
             screenOptions={({ route }: any) => ({
                 tabBarIcon: ({ color, size }: any) => getIcon(route.name, color, size),
-                // tabBarActiveTintColor: 'goldenrod',
-                // tabBarInactiveTintColor: 'gray',
                 tabBarStyle: {
                     display: 'flex', // Keep tabs visible
                 },
-                // Remove the highlight from the 'Search' tab when on PublicProfile
-                // tabBarActiveTintColor: (route.name === 'Search' && getFocusedRouteNameFromRoute(route) === 'Public Profile') ? 'gray' : 'goldenrod',
             })}
         >
-            <Tab.Screen name="Feed" component={FeedStack} options={{ headerShown: false }} />
+            <Tab.Screen
+                name="Feed" 
+                component={FeedStack} 
+                options={({ route }: any) => ({
+                    headerShown: false,
+                    tabBarActiveTintColor:
+                        getFocusedRouteNameFromRoute(route) === 'Feed Page'
+                            ? 'goldenrod'
+                            : 'gray',
+                })}
+            />
             <Tab.Screen
                 name="Search"
                 component={SearchStack}
                 options={({ route }: any) => ({
-                    headerShown:
-                        getFocusedRouteNameFromRoute(route) === 'Public Profile' ||
-                            getFocusedRouteNameFromRoute(route) === 'Company Profile'
-                            ? false
-                            : true,
+                    headerShown: false,
                     tabBarActiveTintColor:
                         getFocusedRouteNameFromRoute(route) === 'Public Profile' ||
                             getFocusedRouteNameFromRoute(route) === 'Company Profile'

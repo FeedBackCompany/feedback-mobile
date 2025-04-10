@@ -3,6 +3,7 @@ import { View, StyleSheet, Button, TouchableWithoutFeedback, Keyboard } from 're
 import CompanySearch from './CompanySearch';
 import UserSearch from './UserSearch';
 import { Searchbar } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SearchWrapper({ navigation }: any) {
     const [searchType, setSearchType] = useState<'company' | 'user'>('company'); // Track the search type
@@ -14,7 +15,7 @@ export default function SearchWrapper({ navigation }: any) {
 
     return (
         <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
                 <Searchbar
                     placeholder="Search..."
                     onChangeText={setSearchQuery}
@@ -42,7 +43,7 @@ export default function SearchWrapper({ navigation }: any) {
                 ) : (
                     <UserSearch searchQuery={searchQuery} navigation={navigation} />
                 )}
-            </View>
+            </SafeAreaView>
         </TouchableWithoutFeedback>
 
     );
