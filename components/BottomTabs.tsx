@@ -36,6 +36,21 @@ const FeedStack = () => {
                     headerShown: false, 
                     animation: 'fade',
                     presentation: 'card',
+                    animationDuration: 100,
+                    transitionSpec: {
+                        open: {
+                            animation: 'timing',
+                            config: {
+                                duration: 100,
+                            },
+                        },
+                        close: {
+                            animation: 'timing',
+                            config: {
+                                duration: 100,
+                            },
+                        },
+                    },
                 }} 
             />
         </Stack.Navigator>

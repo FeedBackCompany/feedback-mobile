@@ -60,7 +60,7 @@ export default function CompanyPostCard({ _route, navigation, post }: CompanyPos
 
     const handleSwipeLeftComplete = () => {
         setTimeout(() => swipeableRef.current?.close(), 30);
-        setTimeout(() => navigateToPost(), 300);
+        setTimeout(() => navigateToPost(), 120);
     };
 
     const renderLeftActions = () => {
