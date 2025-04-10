@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../../lib/supabase'
 import { MaterialIcons, AntDesign } from '@expo/vector-icons'
-import FollowingList from './FollowingList'
-import UserComments from './UserComments';
-import { useCurrentUser } from '../../hooks/useCurrentUser'
+import FollowingList from '../FollowingList'
+import UserComments from '../UserComments';
+import { useCurrentUser } from '../../../hooks/useCurrentUser'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Profile({ route, navigation }: any) {

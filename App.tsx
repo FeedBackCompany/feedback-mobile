@@ -14,6 +14,7 @@ import Auth from './components/Auth';
 import { BookmarksProvider } from './hooks/useBookmarks';
 import { CurrentUserProvider } from './hooks/useCurrentUser';
 import { CurrentPostProvider } from './hooks/useCurrentPost';
+import { VisitedScreensProvider } from './hooks/useVisitedScreens';
 
 const Stack = createNativeStackNavigator()
 
@@ -44,20 +45,22 @@ export default function App() {
       <NavigationContainer>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <CurrentUserProvider session={session}>
-            <BookmarksProvider session={session}>
-              <CurrentPostProvider session={session}>
-                <Stack.Navigator>
-                  {!session ? (
-                    <Stack.Screen name="Auth" component={Auth} />
-                  ) : (
-                    <>
-                      <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
-                      <Stack.Screen name="AdminSettings" component={AdminSettings} />
-                    </>
-                  )}
-                </Stack.Navigator>
-              </CurrentPostProvider>
-            </BookmarksProvider>
+            <VisitedScreensProvider session={session}>
+              <BookmarksProvider session={session}>
+                <CurrentPostProvider session={session}>
+                  <Stack.Navigator>
+                    {!session ? (
+                      <Stack.Screen name="Auth" component={Auth} />
+                    ) : (
+                      <>
+                        <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
+                        <Stack.Screen name="AdminSettings" component={AdminSettings} />
+                      </>
+                    )}
+                  </Stack.Navigator>
+                </CurrentPostProvider>
+              </BookmarksProvider>
+            </VisitedScreensProvider>
           </CurrentUserProvider>
         </GestureHandlerRootView>
       </NavigationContainer>

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { EventRegister } from 'react-native-event-listeners';
 
-export default function AdminSettings({ navigation }: any) {
+export default function AdminSettings({ _navigation }: any) {
     const { logoutUser } = useCurrentUser();
 
     const handleLogout = async () => {

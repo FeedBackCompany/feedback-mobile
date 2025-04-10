@@ -39,7 +39,7 @@ export default function UserComments({ userId }: { userId: string }) {
         setSortNewestFirst(prev => !prev);
     };
 
-    const handleCommentPress = (companyPostId: string) => {
+    const handleCommentPress = (_companyPostId: string) => {
         // navigation.navigate('PostDetails', { postId: companyPostId });
     };
 

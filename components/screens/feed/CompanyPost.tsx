@@ -1,8 +1,8 @@
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Title, Paragraph, Text } from 'react-native-paper';
-import { CurrencyDisplay } from './ui/CurrencyDisplay';
+import { CurrencyDisplay } from '../../ui/CurrencyDisplay';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCurrentPost } from '../hooks/useCurrentPost';
+import { useCurrentPost } from '../../../hooks/useCurrentPost';
 
 export default function CompanyPost({ _route, navigation }: any) {
     const { currentPost, clearCurrentPost } = useCurrentPost();
