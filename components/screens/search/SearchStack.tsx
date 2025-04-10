@@ -1,8 +1,8 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SearchWrapper from './SearchWrapper';
-import PublicProfile from '../../screens/PublicProfile';
-import CompanyProfile from '../CompanyProfile';
+import PublicProfile from '../profile/PublicProfile';
+import CompanyProfile from '../profile/CompanyProfile';
 
 const Stack = createNativeStackNavigator();
 

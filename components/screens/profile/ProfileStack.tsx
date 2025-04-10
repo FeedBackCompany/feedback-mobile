@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
-import { supabase } from '../lib/supabase';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { supabase } from '../../../lib/supabase';
 import { ActivityIndicator, View } from 'react-native';
-import { useCurrentUser } from '../hooks/useCurrentUser';
-import Profile from './screens/Profile';
-import CompanyProfile from './screens/CompanyProfile';
-import PublicProfile from './screens/PublicProfile';
-import CharityProfile from './screens/CharityProfile';
-
-// const Stack = createNativeStackNavigator();
-
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
+import Profile from './Profile';
+import CompanyProfile from './CompanyProfile';
+import PublicProfile from './PublicProfile';
+import CharityProfile from './CharityProfile';
 
 export type ProfileStackParamList = {
     'Your Profile': undefined;

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-import CompanyPost from './CompanyPost';
-import Feed from './screens/Feed';
+import CompanyPost from './screens/feed/CompanyPost';
+import Feed from './screens/feed/Feed';
 import { Ionicons } from '@expo/vector-icons';
-import ProfileStack from './ProfileStack';
+import ProfileStack from './screens/profile/ProfileStack';
 import SearchStack from './screens/search/SearchStack';
 
 const Tab = createBottomTabNavigator();
@@ -33,8 +33,6 @@ const FeedStack = () => {
 };
 
 export default function BottomTabs() {
-    const [initialLoad, setInitialLoad] = useState(true);
-
     const getIcon = (page: ScreenName, color: string, size: number) => {
         let iconName = 'home';
         switch (page) {

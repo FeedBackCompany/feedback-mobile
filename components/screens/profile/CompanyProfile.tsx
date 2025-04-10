@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { supabase } from '../../lib/supabase';
-import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { supabase } from '../../../lib/supabase';
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CompanyProfileLinks from './CompanyProfileLinks';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ProfileStackParamList } from '../ProfileStack'; // Update if path is different
 import Donations from '../Donations';
+// import { NativeStackScreenProps } from '@react-navigation/native-stack';
+// import { ProfileStackParamList } from '../ProfileStack'; // Update if path is different
 
-type Props = NativeStackScreenProps<ProfileStackParamList, 'Company Profile'>;
+// type Props = NativeStackScreenProps<ProfileStackParamList, 'Company Profile'>;
 
 export default function CompanyProfile({ route, navigation }: any) {
     const { user } = useCurrentUser();
