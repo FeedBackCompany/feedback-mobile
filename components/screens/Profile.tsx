@@ -165,7 +165,7 @@ export default function Profile({ route, navigation }: any) {
                 </View>
                 {isOwnProfile && (
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('AdminSettings')}
+                        onPress={() => navigation.navigate('UserAdminSettings', { profile })}
                         style={styles.adminIcon}
                     >
                         <MaterialIcons name="admin-panel-settings" size={24} color="black" />

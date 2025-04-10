@@ -67,7 +67,7 @@ export default function CompanyProfile({ route, navigation }: any) {
                 </View>
                 {user?.id === companyId && (
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('AdminSettings')}
+                        onPress={() => navigation.navigate('CompanyAdminSettings', { profile: companyData })}
                         style={styles.adminIcon}
                     >
                         <MaterialIcons name="admin-panel-settings" size={24} color="black" />
