@@ -9,16 +9,16 @@ export default function UserComments({ userId }: { userId: string }) {
     useEffect(() => {
         const fetchComments = async () => {
             const { data, error } = await supabase
-                .from('user_comments')
+                .from('comments')
                 .select(`
                     id,
-                    content,
-                    company_post_id,
+                    body,
+                    post_id,
                     created_at,
                     posts (
                         title,
                         company_profiles (
-                            name
+                            legal_business_name
                         )
                     )
                 `)
@@ -27,6 +27,7 @@ export default function UserComments({ userId }: { userId: string }) {
 
             if (!error && data) {
                 setComments(data);
+
             } else {
                 console.error('Error fetching comments:', error);
             }
@@ -57,18 +58,18 @@ export default function UserComments({ userId }: { userId: string }) {
             <FlatList
                 data={comments}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => handleCommentPress(item.company_post_id)}>
+                    <TouchableOpacity onPress={() => handleCommentPress(item.post_id)}>
                         <View style={styles.commentContainer}>
                             <Text style={styles.title}>
                                 {item.posts?.title || 'Untitled Post'}
                             </Text>
                             <Text style={styles.companyName}>
-                                {item.posts?.company_profiles?.name || 'Unknown Company'}
+                                {item.posts?.company_profiles?.legal_business_name || 'Unknown Company'}
                             </Text>
                             <Text style={styles.commentPreview}>
-                                {item.content.length > 100
-                                    ? `${item.content.slice(0, 100)}...`
-                                    : item.content}
+                                {item.body.length > 100
+                                    ? `${item.body.slice(0, 100)}...`
+                                    : item.body}
                             </Text>
                         </View>
                     </TouchableOpacity>

@@ -57,6 +57,17 @@ export default function Auth() {
         setLoading(false)
     }
 
+    async function signInGuestCompany() {
+        setLoading(true)
+        const { error } = await supabase.auth.signInWithPassword({
+            email: 'company1guest@company1.com',
+            password: 'ANZwb$pm!wkB_3V',
+        })
+
+        if (error) Alert.alert(error.message)
+        setLoading(false)
+    }
+
     return (
         <View style={styles.container}>
             <View style={[styles.verticallySpaced, styles.mt20]}>
@@ -88,6 +99,9 @@ export default function Auth() {
             </View>
             <View style={styles.verticallySpaced}>
                 <Button title="Continue As Guest" disabled={loading} onPress={() => signInGuest()} />
+            </View>
+            <View style={styles.verticallySpaced}>
+                <Button title="Continue As Company" disabled={loading} onPress={() => signInGuestCompany()} />
             </View>
         </View>
     )
