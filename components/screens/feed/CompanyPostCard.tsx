@@ -27,7 +27,6 @@ interface CompanyPostCardProps {
     isFirstInFeed: boolean;
 }
 
-// const AnimatedText = createAnimatedComponent(Text);
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function CompanyPostCard({ navigation, post, isFirstInFeed }: CompanyPostCardProps) {
