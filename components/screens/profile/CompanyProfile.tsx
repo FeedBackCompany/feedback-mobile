@@ -1,42 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '../../../lib/supabase';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CompanyProfileLinks from './CompanyProfileLinks';
 import Donations from '../Donations';
-// import { NativeStackScreenProps } from '@react-navigation/native-stack';
-// import { ProfileStackParamList } from '../ProfileStack'; // Update if path is different
+import CompanyPostList from './CompanyPostList';
 
-// type Props = NativeStackScreenProps<ProfileStackParamList, 'Company Profile'>;
 
 export default function CompanyProfile({ route, navigation }: any) {
     const { user } = useCurrentUser();
     const [companyData, setCompanyData] = useState<any | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [signedUrl, setSignedUrl] = useState('');
+    const isMounted = useRef(true);
     const companyId = route?.params?.companyId || user?.id;
 
+
+    const fetchCompanyData = useCallback(async () => {
+        if (!companyId) return;
+
+        setLoading(true);
+
+        const { data, error } = await supabase
+            .from('company_profiles')
+            .select('*')
+            .eq('id', companyId)
+            .single();
+
+        if (!isMounted.current) return;
+
+        if (data && !error) {
+            setCompanyData(data);
+
+            const { data: fetchedAvatarData, error } = await supabase.storage
+                .from('avatars')
+                .createSignedUrl(data.avatar_url, 3600);
+
+            if (fetchedAvatarData) setSignedUrl(fetchedAvatarData.signedUrl);
+        } else {
+            console.error(error);
+        }
+
+        setLoading(false);
+    }, [companyId]);
+
     useEffect(() => {
-        const fetchCompanyData = async () => {
-            if (!companyId) return;
+        isMounted.current = true;
 
-            const { data, error } = await supabase
-                .from('company_profiles')
-                .select('*')
-                .eq('id', companyId)
-                .single();
-
-            if (data && !error) {
-                setCompanyData(data);
-            } else {
-                console.error(error);
-            }
-            setLoading(false);
-        };
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchCompanyData();
+        });
 
         fetchCompanyData();
-    }, [companyId]);
+
+        return () => {
+            isMounted.current = false;
+            unsubscribe();
+        };
+    }, [fetchCompanyData, navigation]);
 
     if (loading) {
         return (
@@ -60,14 +83,21 @@ export default function CompanyProfile({ route, navigation }: any) {
         <SafeAreaView style={styles.container}>
             <View style={styles.profileHeader}>
                 <View style={styles.avatarContainer}>
-                    <MaterialIcons name="business" size={50} color="gray" />
+                    {signedUrl ? (
+                        <Image
+                            source={{ uri: signedUrl }}
+                            style={{ width: 80, height: 80, borderRadius: 40 }}
+                        />
+                    ) : (
+                        <MaterialIcons name="business" size={50} color="gray" />
+                    )}
                 </View>
                 <View style={styles.profileInfo}>
                     <Text style={styles.header}>{legal_business_name}</Text>
                 </View>
                 {user?.id === companyId && (
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('CompanyAdminSettings', { profile: companyData })}
+                        onPress={() => navigation.navigate('CompanyAdminSettings', { profile: { ...companyData, avatar_url: signedUrl || '' } })}
                         style={styles.adminIcon}
                     >
                         <MaterialIcons name="admin-panel-settings" size={24} color="black" />
@@ -77,7 +107,8 @@ export default function CompanyProfile({ route, navigation }: any) {
 
             <CompanyProfileLinks email={email} phone_number={phone_number} website={website} />
 
-            <Donations companyId={companyId} navigation={navigation} />
+            <CompanyPostList companyId={companyId} navigation={navigation} />
+            {/* <Donations companyId={companyId} navigation={navigation} /> */}
         </SafeAreaView>
     );
 }

@@ -202,7 +202,7 @@ export default function Profile({ route, navigation }: any) {
             {profile.id && !commentsError ? (
                 (() => {
                     try {
-                        return <UserComments userId={profile.id} />
+                        return <UserComments userId={profile.id} navigation={navigation} />
                     } catch (e) {
                         console.error('UserComments crashed:', e)
                         setCommentsError(true)

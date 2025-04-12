@@ -1,6 +1,4 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import CompanyPost from './screens/feed/CompanyPost';
@@ -8,9 +6,7 @@ import Feed from './screens/feed/Feed';
 import { Ionicons } from '@expo/vector-icons';
 import ProfileStack from './screens/profile/ProfileStack';
 import SearchStack from './screens/search/SearchStack';
-
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+import { Stack, Tab } from '../lib/navigation';
 
 type ScreenName = 'Feed' | 'Search' | 'Profile';
 
@@ -56,7 +52,7 @@ export default function BottomTabs() {
             screenOptions={({ route }: any) => ({
                 tabBarIcon: ({ color, size }: any) => getIcon(route.name, color, size),
                 tabBarStyle: {
-                    display: 'flex', // Keep tabs visible
+                    display: 'flex',
                 },
             })}
         >

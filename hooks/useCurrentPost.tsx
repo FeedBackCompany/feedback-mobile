@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { Post } from '../types/posts';
+import type { PostWithRelations } from '../types/posts';
 import type { Session } from '@supabase/supabase-js'
 
 type CurrentPostContextType = {
-    currentPost: Post | null;
-    updateCurrentPost: (post: Post) => void;
+    currentPost: PostWithRelations | null;
+    updateCurrentPost: (post: PostWithRelations) => void;
     clearCurrentPost: () => void;
 };
 
@@ -15,20 +15,20 @@ interface CurrentPostProviderProps {
     session: Session | null;
 }
 
-export function CurrentPostProvider({ children, _session }: CurrentPostProviderProps) {
-    const [currentPost, setCurrentPost] = useState<Post | null>(null);
+export function CurrentPostProvider({ children }: CurrentPostProviderProps) {
+    const [currentPost, setCurrentPost] = useState<PostWithRelations | null>(null);
 
-    const updateCurrentPost = useCallback((post: Post) => {
+    const updateCurrentPost = useCallback((post: PostWithRelations) => {
         setCurrentPost(post);
-    }, []);
+    }, [setCurrentPost]);
 
     const clearCurrentPost = useCallback(() => {
         setCurrentPost(null);
-    })
-    
+    }, [setCurrentPost])
+
     return (
-        <CurrentPostContext.Provider 
-            value={{ 
+        <CurrentPostContext.Provider
+            value={{
                 currentPost,
                 updateCurrentPost,
                 clearCurrentPost

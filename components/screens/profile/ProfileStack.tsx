@@ -7,6 +7,7 @@ import Profile from './Profile';
 import CompanyProfile from './CompanyProfile';
 import PublicProfile from './PublicProfile';
 import CharityProfile from './CharityProfile';
+import { Stack } from '../../../lib/navigation';
 
 export type ProfileStackParamList = {
     'Your Profile': undefined;
@@ -14,8 +15,6 @@ export type ProfileStackParamList = {
     'Company Profile': { companyId: string };
     'Charity Profile': { charityId: string };
 };
-
-const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
 const ProfileStack = () => {
     const { user } = useCurrentUser();

@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Card, Title, Paragraph, Text } from 'react-native-paper';
-import Animated, { 
-    useAnimatedStyle, 
-    useSharedValue, 
-    withSequence, 
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
     withSpring,
     withRepeat,
     cancelAnimation
@@ -30,10 +30,11 @@ interface CompanyPostCardProps {
 // const AnimatedText = createAnimatedComponent(Text);
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export default function CompanyPostCard({ _route, navigation, post, isFirstInFeed }: CompanyPostCardProps) {
+export default function CompanyPostCard({ navigation, post, isFirstInFeed }: CompanyPostCardProps) {
     const { id, title, description, reward, status, company } = post;
-    const { name, avatar_url } = company;
-    
+    const [signedUrl, setSignedUrl] = useState('');
+    const { name } = company;
+
     const { updateCurrentPost } = useCurrentPost();
     const { addBookmark, removeBookmark, isBookmarked } = useBookmarks();
     const [userHasBookmarked, setUserHasBookmarked] = useState(isBookmarked(id));
@@ -54,6 +55,17 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
         translateX.value = 0;
     };
 
+    const getCompanyPostImage = async () => {
+        // TODO: get url(s) by company post id from other table
+        // const { data: fetchedAvatarData, error } = await supabase.storage
+        //     .from('avatars')
+        //     .createSignedUrl(image_url, 3600);
+
+        // if (fetchedAvatarData?.signedUrl) {
+        //     setSignedUrl(fetchedAvatarData.signedUrl)
+        // }
+    }
+
     useEffect(() => {
         setTimeout(() => {
             if (isFirstInFeed && !hasScreenBeenVisited(VisitedScreen.FEED)) {
@@ -68,6 +80,8 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
                 );
             }
         }, 900)
+
+        getCompanyPostImage()
     }, [isFirstInFeed, hasScreenBeenVisited]);
 
     const handleBookmarkClick = () => {
@@ -79,7 +93,7 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
             addBookmark(id);
         }
 
-        setTimeout(() => swipeableRef.current?.close(), 210)
+        setTimeout(() => (swipeableRef.current as any)?.close(), 210)
     }
 
     const leftTextStyle = useAnimatedStyle(() => {
@@ -99,7 +113,7 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
     const renderRightActions = () => {
         return (
             <View style={styles.actionsContainer}>
-                <Pressable 
+                <Pressable
                     onPress={handleBookmarkClick}
                     style={userHasBookmarked ? styles.activeBookmarkAction : styles.bookmarkAction}
                 >
@@ -123,14 +137,15 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
             </View>
         );
     };
-    
+
     const navigateToPost = () => {
+        console.log(post)
         updateCurrentPost(post);
-        navigation.navigate('Company Post')
+        navigation.navigate('Company Post');
     }
 
     const handleSwipeLeftComplete = () => {
-        setTimeout(() => swipeableRef.current?.close(), 30);
+        setTimeout(() => (swipeableRef.current as any)?.close(), 30);
         setTimeout(() => navigateToPost(), 120);
     };
 
@@ -151,14 +166,14 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
             <Animated.View style={[styles.container, animatedStyles]}>
                 <Pressable onPress={navigateToPost} onPressIn={handlePressIn} style={styles.container}>
                     <Card style={styles.card}>
-                        {avatar_url && <Card.Cover source={{ uri: avatar_url }} />}
+                        {signedUrl && <Card.Cover source={{ uri: signedUrl }} />}
                         <Card.Content>
                             <Title>{name}</Title>
                             <Title>{title}</Title>
                             <Paragraph>{description}</Paragraph>
                             <Text variant="labelMedium">
                                 Reward:
-                                <CurrencyDisplay amount={reward} />
+                                <CurrencyDisplay amount={Number(reward)} type={'USD'} />
                             </Text>
                             <Text variant="labelMedium">Status: {status}</Text>
                         </Card.Content>
@@ -196,15 +211,15 @@ const styles = StyleSheet.create({
         borderRadius: 3,
         zIndex: 1
     },
-    actionsContainer: { 
-        marginRight: 15, 
-        marginTop: 12, 
+    actionsContainer: {
+        marginRight: 15,
+        marginTop: 12,
         paddingTop: 9,
         paddingBottom: 9,
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'space-between' 
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
     leftActionsContainer: {
         marginLeft: 15,
@@ -225,8 +240,8 @@ const styles = StyleSheet.create({
         borderRadius: 3
     },
     bookmarkAction: {
-        height: 90, 
-        width: 150, 
+        height: 90,
+        width: 150,
         borderWidth: 1,
         borderStyle: 'solid',
         borderColor: 'goldenrod',
@@ -235,17 +250,17 @@ const styles = StyleSheet.create({
         borderRadius: 3
     },
     activeBookmarkAction: {
-        height: 90, 
-        width: 150, 
+        height: 90,
+        width: 150,
         backgroundColor: 'goldenrod',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 3
     },
-    companyProfileAction: { 
+    companyProfileAction: {
         marginBottom: 12,
-        height: 90, 
-        width: 150, 
+        height: 90,
+        width: 150,
         backgroundColor: 'black',
         justifyContent: 'center',
         alignItems: 'center',

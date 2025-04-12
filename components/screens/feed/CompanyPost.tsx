@@ -15,7 +15,7 @@ export default function CompanyPost({ _route, navigation }: any) {
     if (!currentPost) return (
         <SafeAreaView style={styles.container}>
             <Text>Unable to find post {':('}</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
                 onPress={handleNavigateToFeedClick}
             >
                 <Text>{'<-'} Go to your feed</Text>

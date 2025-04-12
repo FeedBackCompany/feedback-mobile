@@ -37,7 +37,7 @@ export function CurrentUserProvider({ children, session }: CurrentUserProviderPr
     const email = useCallback(() => user?.email || '', [user]);
 
     return (
-        <CurrentUserContext.Provider 
+        <CurrentUserContext.Provider
             value={{
                 user,
                 setUser,

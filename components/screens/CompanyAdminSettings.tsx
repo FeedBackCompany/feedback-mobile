@@ -5,11 +5,17 @@ import {
     StyleSheet,
     TouchableOpacity,
     TextInput,
+    Image,
+    Alert,
 } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { EventRegister } from 'react-native-event-listeners'
-import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons'
+import { AntDesign, MaterialIcons, FontAwesome6, Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import * as mime from 'mime';
+// import ImagePicker from 'react-native-image-crop-picker';
 import { supabase } from '../../lib/supabase'
 
 export default function CompanyAdminSettings({ navigation, route }: any) {
@@ -22,6 +28,7 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
     const [email, setEmail] = useState(profile?.email || '')
     const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number || '')
     const [website, setWebsite] = useState(profile?.website || '')
+    const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
 
     const [tempLegalName, setTempLegalName] = useState(legalName)
     const [tempName, setTempName] = useState(name)
@@ -38,8 +45,89 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
         }
     }
 
-    const handleEditProfilePicture = () => {
-        console.log('Edit profile picture pressed')
+    const generateRandomId = () => {
+        return Math.random().toString(36).substring(2, 10);
+    };
+
+    const handleEditProfilePicture = async () => {
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission required', 'Permission to access gallery is required!');
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+            });
+
+            if (result.canceled || !result.assets?.length) {
+                console.log('canceled')
+                return;
+            }
+
+            console.log('result.assets', result.assets);
+
+            const imageUri = result.assets[0].uri;
+
+            // console.log('imageuri', imageUri);
+            const fileName = `${Date.now()}-${imageUri.split('/').pop()}` || '';
+            const fileType = result.assets[0].mimeType || '';
+
+            // Fetch the image as a blob
+            const response = await fetch(imageUri);
+            const blobData = await response.blob();
+
+            const blob = new Blob([blobData], {
+                type: fileType
+            })
+
+            const formData = new FormData();
+            formData.append('file', blob)
+
+            console.log('fileName', fileName);
+            // Upload to Supabase
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(fileName, formData, {
+                    contentType: 'multipart/form-data'
+                });
+
+            console.log('uploadError', uploadError);
+
+            if (uploadError) {
+                Alert.alert('Upload Error', uploadError.message);
+                return;
+            }
+
+            // Get public URL
+            const { data, error } = await supabase.storage
+                .from('avatars')
+                .createSignedUrl(fileName, 3600);
+
+            const signedUrl = data?.signedUrl || avatarUrl;
+
+            console.log('signedUrl', signedUrl);
+
+            // Update Supabase profile
+            const { error: updateProfileError } = await supabase
+                .from('company_profiles')
+                .update({ avatar_url: signedUrl })
+                .eq('id', profile.id);
+
+            if (updateProfileError) {
+                console.error('did not upload')
+                throw new Error(updateProfileError.toString());
+            } else {
+                setAvatarUrl(imageUri);
+            }
+        } catch (error) {
+            console.error('Error picking/uploading image: ', error);
+            Alert.alert('Image Upload Error', 'Something went wrong while uploading the image.');
+        }
     }
 
     const handleEditToggle = () => {
@@ -70,15 +158,15 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
 
             const { data, error } = await supabase
                 .from('company_profiles') // Make sure you use the correct table for company profiles
-                .upsert({
-                    id: user.id,  // Use the user's ID from Supabase
-                    legal_business_name: newLegalName, // Field name for legal name in your database
+                .update({
+                    legal_business_name: newLegalName,
                     name: newName,
                     email: newEmail,
                     phone_number: newNumber,
                     website: newWebsite,
                 })
-                .single()
+                .eq('id', profile.id)
+                .single();
 
             if (error) {
                 console.error("Error updating profile:", error.message)
@@ -87,7 +175,7 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
             }
 
             // Update local state if successful
-            console.log('Profile updated successfully:', data)
+            // console.log('Profile updated successfully:', data)
             setLegalName(newLegalName)
             setName(newName)
             setEmail(newEmail)
@@ -111,14 +199,21 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
                     <View style={styles.profileRow}>
                         <View style={styles.avatarContainer}>
                             {/* Profile Image Background */}
-                            <AntDesign name="user" size={50} color="gray" />
+                            {avatarUrl ? (
+                                <Image
+                                    source={{ uri: avatarUrl }}
+                                    style={{ width: 80, height: 80, borderRadius: 40 }}
+                                />
+                            ) : (
+                                <MaterialIcons name="business" size={50} color="gray" />
+                            )}
 
                             {isEditing && (
                                 <TouchableOpacity
                                     onPress={handleEditProfilePicture}
                                     style={styles.changeImageButton}
                                 >
-                                    <FontAwesome6 name="image-portrait" size={34} color="white" />
+                                    <Ionicons name="camera-outline" size={30} color={'#fff'} />
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -234,12 +329,17 @@ const styles = StyleSheet.create({
     },
     changeImageButton: {
         position: 'absolute',
-        bottom: 5,
-        right: 5,
+        width: '100%',
+        height: '100%',
+        bottom: 0,
+        right: 0,
         backgroundColor: 'gray',
         opacity: .8,
         padding: 8,
-        borderRadius: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '100%',
     },
     editButton: {
         flexDirection: 'row',

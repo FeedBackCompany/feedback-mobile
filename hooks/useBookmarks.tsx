@@ -9,6 +9,7 @@ type BookmarksContextType = {
     addBookmark: (postId: string) => Promise<{ data: Bookmark | null; error: any }>;
     removeBookmark: (bookmarkId: string) => Promise<{ error: any }>;
     fetchUsersBookmarks: () => Promise<void>;
+    isBookmarked: (page: string) => boolean
 };
 
 const BookmarksContext = createContext<BookmarksContextType | undefined>(undefined);
@@ -23,6 +24,8 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
 
     const addBookmark = useCallback(async (postId: string) => {
         try {
+            if (!session) return { data: null, error: 'Session not found' };
+
             const { data, error } = await supabase
                 .from('bookmarks')
                 .insert({
@@ -67,11 +70,13 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
 
     const fetchUsersBookmarks = async () => {
         try {
+            if (!session) return;
+
             const { data, error } = await supabase
                 .from('bookmarks')
                 .select('*')
                 .eq('user_id', session.user.id);
-            
+
             if (error) throw error;
 
             setBookmarks(data ?? []);
@@ -79,24 +84,25 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
             console.error(error);
         }
     }
-    
+
     const isBookmarked = (postId: string): boolean => {
         return bookmarks.filter(bookmark => bookmark.post_id === postId).length > 0;
     }
-    
+
     useEffect(() => {
         if (session?.user) {
             fetchUsersBookmarks();
         }
     }, [session]);
-    
+
     return (
-        <BookmarksContext.Provider 
-            value={{ 
-                bookmarks, 
-                addBookmark, 
-                removeBookmark, 
+        <BookmarksContext.Provider
+            value={{
+                bookmarks,
+                addBookmark,
+                removeBookmark,
                 fetchUsersBookmarks,
+                setBookmarks,
                 isBookmarked
             }}
         >

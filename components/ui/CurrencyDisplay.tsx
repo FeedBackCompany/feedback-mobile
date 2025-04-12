@@ -1,11 +1,10 @@
 import React from 'react';
-import { TextStyle } from 'react-native-paper';
 import { Text } from 'react-native-paper';
 
 interface CurrencyDisplayProps {
-  amount: number;
-  style?: TextStyle;
-  type: 'USD' // | 'other currency'
+    amount: number;
+    style?: any;
+    type: 'USD' // | 'other currency'
 }
 
 export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({ amount, style, type }) => {
