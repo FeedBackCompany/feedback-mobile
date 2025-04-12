@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { supabase } from '../../../lib/supabase';
 import { ActivityIndicator, View } from 'react-native';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';

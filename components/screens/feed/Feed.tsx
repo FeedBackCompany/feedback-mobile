@@ -9,7 +9,7 @@ import CompanyPostCard from './CompanyPostCard';
 import type { PostWithRelations } from '../../../types/posts';
 
 export default function Feed({ route, navigation }: any) {
-    const [loading, setLoading] = useState<boolean>(false);
+    const [_loading, setLoading] = useState<boolean>(false);
     const [posts, setPosts] = useState<PostWithRelations[]>([]);
     const [firstPostId, setFirstPostId] = useState<string>('');
 
@@ -40,10 +40,9 @@ export default function Feed({ route, navigation }: any) {
             <FlashList
                 data={posts}
                 renderItem={({ item }) => {
-                    return <CompanyPostCard post={item} route={route} navigation={navigation} isFirstInFeed={item.id === firstPostId} />;
+                    return <CompanyPostCard post={item} route={route} navigation={navigation} isFirstInFeed={item.id === firstPostId} />; 
                 }}
                 estimatedItemSize={5}
-                isListLoaded={!loading}
             />
         </SafeAreaView>
     )

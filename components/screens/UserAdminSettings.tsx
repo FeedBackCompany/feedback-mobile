@@ -12,7 +12,7 @@ import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { supabase } from '../../lib/supabase'
 
-export default function AdminSettings({ navigation, route }: any) {
+export default function AdminSettings({ _navigation, route }: any) {
     const { logoutUser } = useCurrentUser()
     const profile = route?.params?.profile
     const { user } = useCurrentUser()

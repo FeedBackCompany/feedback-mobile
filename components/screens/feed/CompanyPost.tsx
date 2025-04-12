@@ -23,7 +23,8 @@ export default function CompanyPost({ _route, navigation }: any) {
         </SafeAreaView>
     )
 
-    const { name, title, description, reward, status } = currentPost;
+    const { title, description, reward, status, company } = currentPost;
+    const { name } = company;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -32,7 +33,7 @@ export default function CompanyPost({ _route, navigation }: any) {
             <Paragraph>{description}</Paragraph>
             <Text variant="labelMedium">
                 Reward:
-                <CurrencyDisplay amount={reward} />
+                <CurrencyDisplay amount={Number(reward)} type={'USD'} />
             </Text>
             <Text variant="labelMedium">Status: {status}</Text>
         </SafeAreaView>

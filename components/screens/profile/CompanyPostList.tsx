@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { supabase } from '../../../lib/supabase';
 import { useCurrentPost } from '../../../hooks/useCurrentPost';
-import { Post } from '../../../types/posts';
+import type { PostWithRelations } from '../../../types/posts';
 
 export default function CompanyPostList({ companyId, navigation }: { companyId: string, navigation: any }) {
     const [posts, setPosts] = useState<any[]>([]);
@@ -29,13 +29,13 @@ export default function CompanyPostList({ companyId, navigation }: { companyId: 
         fetchPosts();
     }, [companyId]);
 
-    const navigateToPost = (post: Post) => {
+    const navigateToPost = (post: PostWithRelations) => {
         console.log('post', post)
         updateCurrentPost(post);
         navigation.navigate('Feed', { screen: 'Company Post' })
     }
 
-    const renderPost = ({ item }: { item: Post }) => (
+    const renderPost = ({ item }: { item: PostWithRelations }) => (
         <TouchableOpacity
             style={styles.postCard}
             onPress={() => navigateToPost(item)}

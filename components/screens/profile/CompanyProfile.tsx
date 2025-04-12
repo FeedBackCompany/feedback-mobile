@@ -5,9 +5,7 @@ import { supabase } from '../../../lib/supabase';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CompanyProfileLinks from './CompanyProfileLinks';
-import Donations from '../Donations';
 import CompanyPostList from './CompanyPostList';
-
 
 export default function CompanyProfile({ route, navigation }: any) {
     const { user } = useCurrentUser();
@@ -34,7 +32,7 @@ export default function CompanyProfile({ route, navigation }: any) {
         if (data && !error) {
             setCompanyData(data);
 
-            const { data: fetchedAvatarData, error } = await supabase.storage
+            const { data: fetchedAvatarData } = await supabase.storage
                 .from('avatars')
                 .createSignedUrl(data.avatar_url, 3600);
 

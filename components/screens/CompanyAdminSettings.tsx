@@ -10,15 +10,12 @@ import {
 } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { EventRegister } from 'react-native-event-listeners'
-import { AntDesign, MaterialIcons, FontAwesome6, Ionicons } from '@expo/vector-icons'
+import { MaterialIcons, Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import * as mime from 'mime';
-// import ImagePicker from 'react-native-image-crop-picker';
 import { supabase } from '../../lib/supabase'
 
-export default function CompanyAdminSettings({ navigation, route }: any) {
+export default function CompanyAdminSettings({ _navigation, route }: any) {
     const { logoutUser } = useCurrentUser()
     const profile = route?.params?.profile
     const { user } = useCurrentUser()
@@ -45,10 +42,6 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
         }
     }
 
-    const generateRandomId = () => {
-        return Math.random().toString(36).substring(2, 10);
-    };
-
     const handleEditProfilePicture = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -74,7 +67,7 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
             const imageUri = result.assets[0].uri;
 
             // console.log('imageuri', imageUri);
-            const fileName = `${Date.now()}-${imageUri.split('/').pop()}` || '';
+            const fileName = `${Date.now()}-${imageUri.split('/').pop()}`;
             const fileType = result.assets[0].mimeType || '';
 
             // Fetch the image as a blob
@@ -104,7 +97,7 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
             }
 
             // Get public URL
-            const { data, error } = await supabase.storage
+            const { data } = await supabase.storage
                 .from('avatars')
                 .createSignedUrl(fileName, 3600);
 
@@ -156,7 +149,7 @@ export default function CompanyAdminSettings({ navigation, route }: any) {
                 return
             }
 
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from('company_profiles') // Make sure you use the correct table for company profiles
                 .update({
                     legal_business_name: newLegalName,
