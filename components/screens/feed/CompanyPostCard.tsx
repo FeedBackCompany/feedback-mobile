@@ -30,7 +30,7 @@ interface CompanyPostCardProps {
 // const AnimatedText = createAnimatedComponent(Text);
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export default function CompanyPostCard({ _route, navigation, post, isFirstInFeed }: CompanyPostCardProps) {
+export default function CompanyPostCard({ navigation, post, isFirstInFeed }: CompanyPostCardProps) {
     const { id, title, description, reward, status, company } = post;
     const { name, avatar_url } = company;
     
@@ -79,7 +79,7 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
             addBookmark(id);
         }
 
-        setTimeout(() => swipeableRef.current?.close(), 210)
+        setTimeout(() => (swipeableRef.current as any)?.close(), 210)
     }
 
     const leftTextStyle = useAnimatedStyle(() => {
@@ -130,7 +130,7 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
     }
 
     const handleSwipeLeftComplete = () => {
-        setTimeout(() => swipeableRef.current?.close(), 30);
+        setTimeout(() => (swipeableRef.current as any)?.close(), 30);
         setTimeout(() => navigateToPost(), 120);
     };
 
@@ -158,7 +158,7 @@ export default function CompanyPostCard({ _route, navigation, post, isFirstInFee
                             <Paragraph>{description}</Paragraph>
                             <Text variant="labelMedium">
                                 Reward:
-                                <CurrencyDisplay amount={reward} />
+                                <CurrencyDisplay amount={Number(reward)} type={'USD'} />
                             </Text>
                             <Text variant="labelMedium">Status: {status}</Text>
                         </Card.Content>

@@ -5,10 +5,10 @@ import type { Session } from '@supabase/supabase-js'
 
 type BookmarksContextType = {
     bookmarks: Bookmark[];
-    setBookmarks: (bookmarks: Bookmark[]) => void;
     addBookmark: (postId: string) => Promise<{ data: Bookmark | null; error: any }>;
     removeBookmark: (bookmarkId: string) => Promise<{ error: any }>;
     fetchUsersBookmarks: () => Promise<void>;
+    isBookmarked: (postId: string) => boolean;
 };
 
 const BookmarksContext = createContext<BookmarksContextType | undefined>(undefined);
@@ -23,6 +23,8 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
 
     const addBookmark = useCallback(async (postId: string) => {
         try {
+            if (!session) return { data: null, error: 'Could not get session.'};
+
             const { data, error } = await supabase
                 .from('bookmarks')
                 .insert({
@@ -67,6 +69,8 @@ export function BookmarksProvider({ children, session }: BookmarksProviderProps)
 
     const fetchUsersBookmarks = async () => {
         try {
+            if (!session) return;
+
             const { data, error } = await supabase
                 .from('bookmarks')
                 .select('*')

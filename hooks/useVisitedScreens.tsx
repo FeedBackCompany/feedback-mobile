@@ -22,13 +22,15 @@ export function VisitedScreensProvider({ children, session }: VisitedScreensProv
     
     const getVisitedScreens = async () => {
         try {
+            if (!session) return;
+
             const { data, error } = await supabase
                 .from('profiles')
                 .select('visited_screens')
                 .eq('id', session.user.id)
                 .single();
 
-            if (error) throw new Error(error);
+            if (error) throw error;
 
             if (data.visited_screens // it is not null
                 && data.visited_screens.length !== visitedScreens.length // some screens returned from db are not in current list, then update with values from db
@@ -66,7 +68,7 @@ export function VisitedScreensProvider({ children, session }: VisitedScreensProv
                 .select('visited_screens')
                 .single();
 
-            if (error) throw new Error(error);
+            if (error) throw error;
 
             setVisitedScreens(data.visited_screens);
         } catch (err) {
@@ -88,7 +90,7 @@ export function VisitedScreensProvider({ children, session }: VisitedScreensProv
                 .select('visited_screens')
                 .single();
 
-            if (error) throw new Error(error);
+            if (error) throw error;
 
             setVisitedScreens(data.visited_screens ?? []);
         } catch (err) {
