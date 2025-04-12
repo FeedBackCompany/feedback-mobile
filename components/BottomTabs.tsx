@@ -86,7 +86,8 @@ export default function BottomTabs() {
                 options={({ route }: any) => ({
                     headerShown: false,
                     tabBarActiveTintColor:
-                        getFocusedRouteNameFromRoute(route) === 'Public Profile'
+                        getFocusedRouteNameFromRoute(route) === 'Public Profile' || 
+                            getFocusedRouteNameFromRoute(route) === 'Company Post In Profile'
                             ? 'gray'
                             : 'goldenrod',
                 })}

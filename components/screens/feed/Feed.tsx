@@ -8,10 +8,14 @@ import CompanyPostCard from './CompanyPostCard';
 
 import type { PostWithRelations } from '../../../types/posts';
 
+const POSTS_PER_PAGE = 9;
+
 export default function Feed({ route, navigation }: any) {
-    const [_loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [posts, setPosts] = useState<PostWithRelations[]>([]);
     const [firstPostId, setFirstPostId] = useState<string>('');
+    const [page, setPage] = useState<number>(0);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
     useEffect(() => {
         getPosts();
@@ -22,12 +26,23 @@ export default function Feed({ route, navigation }: any) {
         try {
             const { data, error } = await supabase
                 .from('posts')
-                .select('*, company:company_profiles(*)');
+                .select('*, company:company_profiles(*)')
+                .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1)
+                .order('created_at', { ascending: false });
             
             if (error) throw error;
+
+            if (data.length < POSTS_PER_PAGE) {
+                setHasMore(false);
+            }
             
-            setPosts(data);
-            setFirstPostId(data[0].id);
+            if (page === 0) {
+                setPosts(data);
+                if (data.length > 0) setFirstPostId(data[0].id);
+            } else {
+                setPosts(prev => [...prev, ...data]);
+            }
+
         } catch (error) {
             console.error(error);
         } finally {
@@ -35,14 +50,29 @@ export default function Feed({ route, navigation }: any) {
         }
     }
 
+    const loadMore = () => {
+        if (!loading && hasMore) {
+            setPage(prev => prev + 1);
+            getPosts();
+        }
+    }
+
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <FlashList
+                style={styles.container}
                 data={posts}
                 renderItem={({ item }) => {
-                    return <CompanyPostCard post={item} route={route} navigation={navigation} isFirstInFeed={item.id === firstPostId} />; 
+                    return <CompanyPostCard 
+                        post={item} 
+                        route={route} 
+                        navigation={navigation} 
+                        isFirstInFeed={item.id === firstPostId} 
+                    />; 
                 }}
-                estimatedItemSize={5}
+                estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
+                onEndReached={loadMore}
+                onEndReachedThreshold={0.3}
             />
         </SafeAreaView>
     )

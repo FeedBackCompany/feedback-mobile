@@ -7,6 +7,7 @@ import CompanyProfile from './CompanyProfile';
 import PublicProfile from './PublicProfile';
 import CharityProfile from './CharityProfile';
 import { Stack } from '../../../lib/navigation';
+import CompanyPost from '../feed/CompanyPost';
 
 export type ProfileStackParamList = {
     'Your Profile': undefined;
@@ -64,6 +65,16 @@ const ProfileStack = () => {
                 name="Charity Profile" // Add CharityProfile to the navigator
                 component={CharityProfile}
                 options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Company Post In Profile"
+                component={CompanyPost}
+                options={{
+                    headerShown: false,
+                    animation: 'fade',
+                    presentation: 'card',
+                    animationDuration: 100
+                }}
             />
         </Stack.Navigator>
     );

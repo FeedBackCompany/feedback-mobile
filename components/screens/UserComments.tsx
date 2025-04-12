@@ -54,10 +54,10 @@ export default function UserComments({ userId, navigation }: { userId: string, n
     };
 
     const handleCommentPress = (post: PostWithRelations) => {
-        console.log(post);
+        // console.log(post);
 
         updateCurrentPost(post);
-        navigation.navigate('Feed', { screen: 'Company Post' })
+        navigation.navigate('Company Post In Profile')
         // navigation.navigate('PostDetails', { postId: companyPostId });
     };
 

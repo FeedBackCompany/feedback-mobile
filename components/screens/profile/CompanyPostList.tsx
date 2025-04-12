@@ -13,7 +13,7 @@ export default function CompanyPostList({ companyId, navigation }: { companyId: 
         const fetchPosts = async () => {
             const { data, error } = await supabase
                 .from('posts')
-                .select('*')
+                .select('*, company:company_profiles(*)')
                 .eq('company_id', companyId)
                 .order('created_at', { ascending: false });
 
@@ -32,7 +32,7 @@ export default function CompanyPostList({ companyId, navigation }: { companyId: 
     const navigateToPost = (post: PostWithRelations) => {
         console.log('post', post)
         updateCurrentPost(post);
-        navigation.navigate('Feed', { screen: 'Company Post' })
+        navigation.navigate('Company Post In Profile')
     }
 
     const renderPost = ({ item }: { item: PostWithRelations }) => (
