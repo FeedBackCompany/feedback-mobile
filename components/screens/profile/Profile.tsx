@@ -91,14 +91,6 @@ export default function Profile({ route, navigation }: any) {
     const toggleFollow = async () => {
         if (!user) return;
 
-        const { data: _, error: fetchError } = await supabase
-            .from('profiles')
-            .select('following')
-            .eq('id', user.id)
-            .single()
-
-        if (fetchError) return
-
         const viewedUserId = route.params?.userId || user?.id
 
         // Check if the user is already following
@@ -202,6 +194,16 @@ export default function Profile({ route, navigation }: any) {
             {profile.id && !commentsError ? (
                 (() => {
                     try {
+                        const canShowComments = profile?.show_comments || isOwnProfile
+
+                        if (!canShowComments) {
+                            return (
+                                <Text style={{ textAlign: 'center', marginTop: 10, color: 'gray' }}>
+                                    This user's comments are private.
+                                </Text>
+                            )
+                        }
+
                         return <UserComments userId={profile.id} navigation={navigation} />
                     } catch (e) {
                         console.error('UserComments crashed:', e)
@@ -218,6 +220,8 @@ export default function Profile({ route, navigation }: any) {
                     Could not load comments.
                 </Text>
             ) : null}
+
+
         </SafeAreaView>
     )
 }

@@ -75,7 +75,8 @@ export default function BottomTabs() {
                     headerShown: false,
                     tabBarActiveTintColor:
                         getFocusedRouteNameFromRoute(route) === 'Public Profile' ||
-                            getFocusedRouteNameFromRoute(route) === 'Company Profile'
+                            getFocusedRouteNameFromRoute(route) === 'Company Profile' ||
+                            getFocusedRouteNameFromRoute(route) === 'Company Post In Profile'
                             ? 'gray'
                             : 'goldenrod',
                 })}
@@ -86,7 +87,7 @@ export default function BottomTabs() {
                 options={({ route }: any) => ({
                     headerShown: false,
                     tabBarActiveTintColor:
-                        getFocusedRouteNameFromRoute(route) === 'Public Profile' || 
+                        getFocusedRouteNameFromRoute(route) === 'Public Profile' ||
                             getFocusedRouteNameFromRoute(route) === 'Company Post In Profile'
                             ? 'gray'
                             : 'goldenrod',

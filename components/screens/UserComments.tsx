@@ -8,6 +8,7 @@ export default function UserComments({ userId, navigation }: { userId: string, n
     const [comments, setComments] = useState<any[]>([]);
     const [sortNewestFirst, setSortNewestFirst] = useState(true);
     const { updateCurrentPost } = useCurrentPost();
+    console.log(userId);
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -41,6 +42,7 @@ export default function UserComments({ userId, navigation }: { userId: string, n
             if (!error && data) {
                 setComments(data);
 
+
             } else {
                 console.error('Error fetching comments:', error);
             }
@@ -60,6 +62,8 @@ export default function UserComments({ userId, navigation }: { userId: string, n
         navigation.navigate('Company Post In Profile')
         // navigation.navigate('PostDetails', { postId: companyPostId });
     };
+
+    console.log(comments);
 
     return (
         <View style={styles.container}>

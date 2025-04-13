@@ -34,6 +34,8 @@ export default function CompanySearch({ searchQuery, navigation }: CompanySearch
     }, [searchQuery]);
 
     const handleCompanyPress = (companyId: string) => {
+        // updateCurrentPost(post);
+        // navigation.navigate('Company Post In Profile')
         navigation.navigate('Company Profile', { companyId });
     };
 

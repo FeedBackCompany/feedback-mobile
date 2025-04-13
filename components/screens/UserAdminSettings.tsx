@@ -5,6 +5,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     TextInput,
+    Switch,
 } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { EventRegister } from 'react-native-event-listeners'
@@ -12,7 +13,7 @@ import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { supabase } from '../../lib/supabase'
 
-export default function AdminSettings({ _navigation, route }: any) {
+export default function UserAdminSettings({ _navigation, route }: any) {
     const { logoutUser } = useCurrentUser()
     const profile = route?.params?.profile
     const { user } = useCurrentUser()
@@ -20,10 +21,12 @@ export default function AdminSettings({ _navigation, route }: any) {
     const [username, setUsername] = useState(profile?.username || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [bio, setBio] = useState(profile?.bio || '')
+    const [showComments, setShowComments] = useState(profile?.show_comments ?? true)  //added
 
     const [tempUsername, setTempUsername] = useState(username)
     const [tempFullName, setTempFullName] = useState(fullName)
     const [tempBio, setTempBio] = useState(bio)
+    const [tempShowComments, setTempShowComments] = useState(showComments) // added
 
     const [isEditing, setIsEditing] = useState(false)
 
@@ -43,7 +46,7 @@ export default function AdminSettings({ _navigation, route }: any) {
     }
 
     const handleDone = () => {
-        updateProfile(tempUsername, tempFullName, tempBio)
+        updateProfile(tempUsername, tempFullName, tempBio, tempShowComments)
         setIsEditing(false)
     }
 
@@ -51,11 +54,12 @@ export default function AdminSettings({ _navigation, route }: any) {
         setTempUsername(username)
         setTempFullName(fullName)
         setTempBio(bio)
+        setTempShowComments(showComments) // ⬅️ ADDED
         setIsEditing(false)
     }
 
     // Update the profile information in the backend
-    const updateProfile = async (newUsername: string, newFullName: string, newBio: string) => {
+    const updateProfile = async (newUsername: string, newFullName: string, newBio: string, newShowComments: boolean) => {
         try {
             if (!user) {
                 console.error("No user is logged in")
@@ -69,6 +73,7 @@ export default function AdminSettings({ _navigation, route }: any) {
                     username: newUsername,
                     full_name: newFullName,
                     description: newBio,
+                    show_comments: newShowComments, // ⬅️ ADDED
                 })
                 .single()
 
@@ -83,6 +88,7 @@ export default function AdminSettings({ _navigation, route }: any) {
             setUsername(newUsername)
             setFullName(newFullName)
             setBio(newBio)
+            setShowComments(newShowComments) // ⬅️ ADDED
         } catch (error) {
             console.error("Error updating profile:", error)
             handleDiscard()  // Optionally, revert changes on error
@@ -161,6 +167,19 @@ export default function AdminSettings({ _navigation, route }: any) {
                             placeholder="Enter Bio"
                             editable={isEditing}
                             multiline
+                        />
+                    </View>
+
+
+                    <Text style={styles.fieldTitle}>Show Comments Publicly</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                        <Text style={{ fontSize: 16, marginRight: 10 }}>
+                            {tempShowComments ? 'Yes' : 'No'}
+                        </Text>
+                        <Switch
+                            value={tempShowComments}
+                            onValueChange={setTempShowComments}
+                            disabled={!isEditing}
                         />
                     </View>
 
