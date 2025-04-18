@@ -13,8 +13,26 @@ export default function CompanyProfile({ route, navigation }: any) {
     const [loading, setLoading] = useState<boolean>(true);
     const [signedUrl, setSignedUrl] = useState('');
     const isMounted = useRef(true);
+    const [isFollowing, setIsFollowing] = useState(false);
+    console.log("\n== route.params.companyId ==\n", route?.params?.companyId, "\n");
     const companyId = route?.params?.companyId || user?.id;
 
+    const checkIfFollowing = useCallback(async () => {
+        if (!user || !companyId || user.id === companyId) return;
+
+        const { data, error } = await supabase
+            .from('follows')
+            .select('*')
+            .eq('follower_id', user.id)
+            .eq('followed_id', companyId)
+            .single();
+
+        if (!error && data) {
+            setIsFollowing(true);
+        } else {
+            setIsFollowing(false);
+        }
+    }, [user, companyId]);
 
     const fetchCompanyData = useCallback(async () => {
         if (!companyId) return;
@@ -31,6 +49,7 @@ export default function CompanyProfile({ route, navigation }: any) {
 
         if (data && !error) {
             setCompanyData(data);
+            await checkIfFollowing();
 
             const { data: fetchedAvatarData } = await supabase.storage
                 .from('avatars')
@@ -75,6 +94,24 @@ export default function CompanyProfile({ route, navigation }: any) {
         );
     }
 
+    const toggleFollow = async () => {
+        if (!user || !companyId || user.id === companyId) return;
+
+        if (isFollowing) {
+            await supabase
+                .from('follows')
+                .delete()
+                .eq('follower_id', user.id)
+                .eq('followed_id', companyId);
+            setIsFollowing(false);
+        } else {
+            await supabase
+                .from('follows')
+                .insert([{ follower_id: user.id, followed_id: companyId }]);
+            setIsFollowing(true);
+        }
+    };
+
     const { legal_business_name, website, email, phone_number } = companyData;
 
     return (
@@ -102,6 +139,14 @@ export default function CompanyProfile({ route, navigation }: any) {
                     </TouchableOpacity>
                 )}
             </View>
+
+            {user?.id !== companyId && (
+                <TouchableOpacity onPress={toggleFollow} style={{ alignSelf: 'flex-end', marginBottom: 10 }}>
+                    <Text style={{ color: 'tomato', fontWeight: 'bold', fontSize: 16 }}>
+                        {isFollowing ? 'Unfollow' : 'Follow'}
+                    </Text>
+                </TouchableOpacity>
+            )}
 
             <CompanyProfileLinks email={email} phone_number={phone_number} website={website} />
 

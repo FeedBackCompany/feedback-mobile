@@ -5,14 +5,17 @@ import {
     StyleSheet,
     TouchableOpacity,
     TextInput,
+    Switch,
+    ScrollView,
 } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { EventRegister } from 'react-native-event-listeners'
 import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { supabase } from '../../lib/supabase'
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function AdminSettings({ _navigation, route }: any) {
+export default function UserAdminSettings({ navigation, route }: any) {
+    const insets = useSafeAreaInsets();
     const { logoutUser } = useCurrentUser()
     const profile = route?.params?.profile
     const { user } = useCurrentUser()
@@ -20,10 +23,12 @@ export default function AdminSettings({ _navigation, route }: any) {
     const [username, setUsername] = useState(profile?.username || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [bio, setBio] = useState(profile?.bio || '')
+    const [showComments, setShowComments] = useState(profile?.show_comments ?? true)  //added
 
     const [tempUsername, setTempUsername] = useState(username)
     const [tempFullName, setTempFullName] = useState(fullName)
     const [tempBio, setTempBio] = useState(bio)
+    const [tempShowComments, setTempShowComments] = useState(showComments) // added
 
     const [isEditing, setIsEditing] = useState(false)
 
@@ -43,7 +48,7 @@ export default function AdminSettings({ _navigation, route }: any) {
     }
 
     const handleDone = () => {
-        updateProfile(tempUsername, tempFullName, tempBio)
+        updateProfile(tempUsername, tempFullName, tempBio, tempShowComments)
         setIsEditing(false)
     }
 
@@ -51,11 +56,12 @@ export default function AdminSettings({ _navigation, route }: any) {
         setTempUsername(username)
         setTempFullName(fullName)
         setTempBio(bio)
+        setTempShowComments(showComments) // ⬅️ ADDED
         setIsEditing(false)
     }
 
     // Update the profile information in the backend
-    const updateProfile = async (newUsername: string, newFullName: string, newBio: string) => {
+    const updateProfile = async (newUsername: string, newFullName: string, newBio: string, newShowComments: boolean) => {
         try {
             if (!user) {
                 console.error("No user is logged in")
@@ -69,6 +75,7 @@ export default function AdminSettings({ _navigation, route }: any) {
                     username: newUsername,
                     full_name: newFullName,
                     description: newBio,
+                    show_comments: newShowComments, // ⬅️ ADDED
                 })
                 .single()
 
@@ -83,6 +90,7 @@ export default function AdminSettings({ _navigation, route }: any) {
             setUsername(newUsername)
             setFullName(newFullName)
             setBio(newBio)
+            setShowComments(newShowComments) // ⬅️ ADDED
         } catch (error) {
             console.error("Error updating profile:", error)
             handleDiscard()  // Optionally, revert changes on error
@@ -90,9 +98,21 @@ export default function AdminSettings({ _navigation, route }: any) {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.container}>
-                <Text style={styles.title}>Admin Settings</Text>
+        <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }}>
+            <ScrollView
+                style={{ flex: 1, backgroundColor: '#fff' }}
+                contentContainerStyle={{ padding: 16 }}
+                contentInset={{ bottom: 0, top: 0 }}
+                contentInsetAdjustmentBehavior="never"
+                keyboardShouldPersistTaps="handled"
+            >
+
+                <View style={styles.settingsHeader}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <AntDesign name="arrowleft" size={34} color="black" />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Admin Settings</Text>
+                </View>
 
                 <View style={styles.personalInfoContainer}>
                     <Text style={styles.sectionHeaderText}>Personal Info</Text>
@@ -163,21 +183,43 @@ export default function AdminSettings({ _navigation, route }: any) {
                             multiline
                         />
                     </View>
+                </View>
 
+                <Text style={styles.fieldTitle}>Show Comments Publicly</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Text style={{ fontSize: 16, marginRight: 10 }}>
+                        {tempShowComments ? 'Yes' : 'No'}
+                    </Text>
+                    <Switch
+                        value={tempShowComments}
+                        onValueChange={setTempShowComments}
+                    />
                 </View>
 
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                     <Text style={styles.logoutButtonText}>Log Out</Text>
                 </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+            </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+    container: {
+        flex: 1,
+        // padding: 16,
+
+        backgroundColor: '#fff',
+    },
+    settingsHeader: {
+        flexDirection: 'row',
+    },
     title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
     // Personal Info Container Styles
+    backButton: {
+        marginTop: -2,
+        marginRight: 15,
+    },
     personalInfoContainer: {
         backgroundColor: '#f7f7f7', // Light gray background to highlight the section
         padding: 16,

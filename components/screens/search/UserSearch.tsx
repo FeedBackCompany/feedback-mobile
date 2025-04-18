@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { supabase } from '../../../lib/supabase';
 import { AntDesign } from '@expo/vector-icons';
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
 
 interface UserSearchProps {
     searchQuery: string;
@@ -10,6 +11,7 @@ interface UserSearchProps {
 
 export default function UserSearch({ searchQuery, navigation }: UserSearchProps) {
     const [users, setUsers] = useState<any[]>([]);
+    const { user } = useCurrentUser();
 
     useEffect(() => {
         if (searchQuery.length === 0) {
@@ -24,7 +26,8 @@ export default function UserSearch({ searchQuery, navigation }: UserSearchProps)
                 .ilike('full_name', `%${searchQuery}%`); // Search by user's full name
 
             if (data) {
-                setUsers(data);
+                const filtered = data.filter(u => u.id !== user?.id);
+                setUsers(filtered);
             } else {
                 console.error(error);
             }

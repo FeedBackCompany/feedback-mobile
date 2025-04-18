@@ -55,9 +55,10 @@ export default function CompanyPostList({ companyId, navigation }: { companyId: 
             ) : (
                 <FlatList
                     data={posts}
+                    renderItem={renderPost}
+                    // estimatedItemSize={9}
                     key={'vertical'}
                     keyExtractor={(item) => item.id}
-                    renderItem={renderPost}
                     contentContainerStyle={styles.list}
                 />
             )}
@@ -67,12 +68,11 @@ export default function CompanyPostList({ companyId, navigation }: { companyId: 
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 24,
     },
     sectionHeader: {
         fontSize: 20,
         fontWeight: '600',
-        marginBottom: 12,
+        marginVertical: 24,
         marginLeft: 4,
     },
     loading: {
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
     list: {
-        paddingBottom: 16,
+        paddingBottom: 180,
     },
     postCard: {
         backgroundColor: '#f2f2f2',

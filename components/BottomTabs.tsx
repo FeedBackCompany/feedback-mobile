@@ -1,32 +1,10 @@
 import React from 'react';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-
-import CompanyPost from './screens/feed/CompanyPost';
-import Feed from './screens/feed/Feed';
 import { Ionicons } from '@expo/vector-icons';
-import ProfileStack from './screens/profile/ProfileStack';
-import SearchStack from './screens/search/SearchStack';
-import { Stack, Tab } from '../lib/navigation';
+import { Tab } from '../lib/navigation';
+import StackNavigator from './StackNavigator';
 
 type ScreenName = 'Feed' | 'Search' | 'Profile';
-
-const FeedStack = () => {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen name="Feed Page" component={Feed} options={{ headerShown: false }} />
-            <Stack.Screen
-                name="Company Post"
-                component={CompanyPost}
-                options={{
-                    headerShown: false,
-                    animation: 'fade',
-                    presentation: 'card',
-                    animationDuration: 100
-                }}
-            />
-        </Stack.Navigator>
-    );
-};
 
 export default function BottomTabs() {
     const getIcon = (page: ScreenName, color: string, size: number) => {
@@ -58,7 +36,7 @@ export default function BottomTabs() {
         >
             <Tab.Screen
                 name="Feed"
-                component={FeedStack}
+                component={StackNavigator}
                 options={({ route }: any) => ({
                     headerShown: false,
                     tabBarActiveTintColor:
@@ -70,23 +48,24 @@ export default function BottomTabs() {
             />
             <Tab.Screen
                 name="Search"
-                component={SearchStack}
+                component={StackNavigator}
                 options={({ route }: any) => ({
                     headerShown: false,
                     tabBarActiveTintColor:
                         getFocusedRouteNameFromRoute(route) === 'Public Profile' ||
-                            getFocusedRouteNameFromRoute(route) === 'Company Profile'
+                            getFocusedRouteNameFromRoute(route) === 'Company Profile' ||
+                            getFocusedRouteNameFromRoute(route) === 'Company Post In Profile'
                             ? 'gray'
                             : 'goldenrod',
                 })}
             />
             <Tab.Screen
                 name="Profile"
-                component={ProfileStack}
+                component={StackNavigator}
                 options={({ route }: any) => ({
                     headerShown: false,
                     tabBarActiveTintColor:
-                        getFocusedRouteNameFromRoute(route) === 'Public Profile' || 
+                        getFocusedRouteNameFromRoute(route) === 'Public Profile' ||
                             getFocusedRouteNameFromRoute(route) === 'Company Post In Profile'
                             ? 'gray'
                             : 'goldenrod',

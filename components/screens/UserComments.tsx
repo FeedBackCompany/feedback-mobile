@@ -41,6 +41,7 @@ export default function UserComments({ userId, navigation }: { userId: string, n
             if (!error && data) {
                 setComments(data);
 
+
             } else {
                 console.error('Error fetching comments:', error);
             }
@@ -64,8 +65,7 @@ export default function UserComments({ userId, navigation }: { userId: string, n
     return (
         <View style={styles.container}>
             <View style={styles.headerRow}>
-                <Text style={styles.header}>Your Comments</Text>
-                <TouchableOpacity onPress={toggleSort}>
+                <TouchableOpacity onPress={toggleSort} style={styles.sortButton}>
                     <Text style={styles.sortText}>
                         {sortNewestFirst ? 'Newest' : 'Oldest'}
                     </Text>
@@ -103,25 +103,66 @@ export default function UserComments({ userId, navigation }: { userId: string, n
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#fff', // soft light gray
+    },
     headerRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         alignItems: 'center',
         marginBottom: 16,
     },
-    header: { fontSize: 18, fontWeight: 'bold' },
+    sortButton: {
+        paddingHorizontal: 16,
+        height: 34,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+        borderWidth: 2,
+        borderColor: 'rgba(0, 0, 0, 0.50)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
     sortText: {
-        fontSize: 14,
-        color: 'tomato',
-        fontWeight: '600',
+        fontSize: 13,
+        fontWeight: 500,
+        letterSpacing: .3,
+        color: 'rgb(0, 0, 0)',
     },
     commentContainer: {
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+        backgroundColor: '#fff',
+        padding: 16,
+        marginBottom: 14,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#e6e6e6',
+        shadowColor: 'rgba(0, 0, 0, 0.47)',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 1,
+        elevation: 2,
     },
-    title: { fontSize: 16, fontWeight: 'bold' },
-    companyName: { fontSize: 14, color: 'tomato', marginTop: 2 },
-    commentPreview: { fontSize: 14, color: 'gray', marginTop: 4 },
+    title: {
+        fontSize: 17,
+        fontWeight: '600',
+        color: '#1a1a1a',
+        marginBottom: 4,
+    },
+    companyName: {
+        fontSize: 13,
+        color: '#555',
+        marginBottom: 8,
+    },
+    commentPreview: {
+        fontSize: 14,
+        color: '#333',
+        lineHeight: 20,
+    },
 });
+

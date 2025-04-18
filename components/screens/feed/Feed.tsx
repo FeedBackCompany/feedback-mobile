@@ -29,13 +29,13 @@ export default function Feed({ route, navigation }: any) {
                 .select('*, company:company_profiles(*)')
                 .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1)
                 .order('created_at', { ascending: false });
-            
+
             if (error) throw error;
 
             if (data.length < POSTS_PER_PAGE) {
                 setHasMore(false);
             }
-            
+
             if (page === 0) {
                 setPosts(data);
                 if (data.length > 0) setFirstPostId(data[0].id);
@@ -63,12 +63,12 @@ export default function Feed({ route, navigation }: any) {
                 style={styles.container}
                 data={posts}
                 renderItem={({ item }) => {
-                    return <CompanyPostCard 
-                        post={item} 
-                        route={route} 
-                        navigation={navigation} 
-                        isFirstInFeed={item.id === firstPostId} 
-                    />; 
+                    return <CompanyPostCard
+                        post={item}
+                        route={route}
+                        navigation={navigation}
+                        isFirstInFeed={item.id === firstPostId}
+                    />;
                 }}
                 estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
                 onEndReached={loadMore}
