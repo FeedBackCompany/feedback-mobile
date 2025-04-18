@@ -8,6 +8,7 @@ import PublicProfile from './PublicProfile';
 import CharityProfile from './CharityProfile';
 import { Stack } from '../../../lib/navigation';
 import CompanyPost from '../feed/CompanyPost';
+import UserAdminSettings from '../UserAdminSettings';
 
 export type ProfileStackParamList = {
     'Your Profile': undefined;
@@ -76,6 +77,11 @@ const ProfileStack = () => {
                     animationDuration: 100
                 }}
             />
+            <Stack.Screen name="UserAdminSettings"
+                component={UserAdminSettings}
+                options={{ headerShown: false }}
+            />
+
         </Stack.Navigator>
     );
 };

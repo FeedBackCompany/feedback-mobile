@@ -53,7 +53,6 @@ export default function App() {
                     ) : (
                       <Stack.Group>
                         <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
-                        <Stack.Screen name="UserAdminSettings" component={UserAdminSettings} options={{ headerShown: false }} />
                         <Stack.Screen name="CompanyAdminSettings" component={CompanyAdminSettings} options={{ headerShown: false }} />
                       </Stack.Group>
                     )}

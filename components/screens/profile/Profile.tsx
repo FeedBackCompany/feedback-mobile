@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Animated } from 'react-native'
 import { supabase } from '../../../lib/supabase'
 import { MaterialIcons, AntDesign } from '@expo/vector-icons'
 import FollowingList from '../FollowingList'
 import UserComments from '../UserComments';
 import { useCurrentUser } from '../../../hooks/useCurrentUser'
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 export default function Profile({ route, navigation }: any) {
     const [profile, setProfile] = useState<any>(null)
@@ -14,6 +15,7 @@ export default function Profile({ route, navigation }: any) {
     const [isFollowing, setIsFollowing] = useState(false)
     const [commentsError, setCommentsError] = useState(false);
     const { user } = useCurrentUser();
+    const [activeTab, setActiveTab] = useState<'comments' | 'saved'>('comments');
 
     const isMounted = useRef(true)
     const loadingRef = useRef(true)
@@ -166,15 +168,11 @@ export default function Profile({ route, navigation }: any) {
             </View>
 
             <Text style={styles.description}>{profile.description || 'No bio'}</Text>
-            <View style={styles.separator} />
-
             {isOwnProfile ? (
                 // Hide the "Following" button when the modal is visible
-                !isModalVisible && (
-                    <TouchableOpacity onPress={handleOpenModal} style={styles.followingButton}>
-                        <Text style={styles.followingButtonText}>Following</Text>
-                    </TouchableOpacity>
-                )
+                <TouchableOpacity onPress={handleOpenModal} style={styles.followingButton}>
+                    <Text style={styles.followingButtonText}>Following</Text>
+                </TouchableOpacity>
             ) : (
                 <View style={styles.buttonGroup}>
                     <TouchableOpacity onPress={toggleFollow} style={styles.followingButton}>
@@ -190,8 +188,44 @@ export default function Profile({ route, navigation }: any) {
                 onClose={handleCloseModal}
                 navigation={navigation}
             />
+            <View style={styles.separator} />
 
-            {profile.id && !commentsError ? (
+
+            <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+                <TouchableOpacity
+                    onPress={() => setActiveTab('comments')}
+                    style={{
+                        width: '50%',
+                        alignItems: 'center',
+                        paddingBottom: 6,
+                        paddingTop: 10,
+                        borderBottomWidth: activeTab === 'comments' ? 3 : 0,
+                        borderBottomColor: '#111211',
+                    }}
+                >
+                    <Text style={{ fontSize: 18, letterSpacing: 1.2, color: activeTab === 'comments' ? 'black' : 'gray' }}>
+                        Comments
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => setActiveTab('saved')}
+                    style={{
+                        width: '50%',
+                        alignItems: 'center',
+                        paddingBottom: 6,
+                        paddingTop: 10,
+                        borderBottomWidth: activeTab === 'saved' ? 3 : 0,
+                        borderBottomColor: '#111211',
+                    }}
+                >
+                    <Text style={{ fontSize: 18, letterSpacing: 1.2, color: activeTab === 'saved' ? 'black' : 'gray' }}>
+                        Saved
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
+            {activeTab === 'comments' && profile.id && !commentsError ? (
                 (() => {
                     try {
                         const canShowComments = profile?.show_comments || isOwnProfile
@@ -215,13 +249,15 @@ export default function Profile({ route, navigation }: any) {
                         )
                     }
                 })()
-            ) : commentsError ? (
-                <Text style={{ textAlign: 'center', marginTop: 10, color: 'gray' }}>
-                    Could not load comments.
-                </Text>
             ) : null}
 
-
+            {activeTab === 'saved' && (
+                <View style={{ marginTop: 20, alignItems: 'center' }}>
+                    <Text style={{ color: 'gray', fontSize: 16 }}>
+                        Bookmarked posts will show here.
+                    </Text>
+                </View>
+            )}
         </SafeAreaView>
     )
 }
@@ -239,8 +275,18 @@ const styles = StyleSheet.create({
     description: { fontSize: 14, color: 'gray', marginVertical: 8 },
     separator: { height: 1, backgroundColor: 'lightgray', marginVertical: 10 },
     adminIcon: { position: 'absolute', top: 16, right: 16, padding: 8 },
-    followingButton: { marginTop: 10, alignSelf: 'flex-end' },
-    followingButtonText: { color: 'tomato', fontSize: 16, fontWeight: 'bold' },
+    followingButton: {
+        width: 140, // wider
+        height: 40, // shorter
+        borderRadius: 20, // half of height for pill shape
+        backgroundColor: 'rgba(94, 93, 93, 0.1)',
+        opacity: 0.9,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center', // center it horizontally
+        marginTop: 10,
+    },
+    followingButtonText: { color: 'black', fontSize: 16, fontWeight: 'bold' },
     logoutButton: {
         backgroundColor: 'gray', padding: 12, alignItems: 'center',
         borderRadius: 8, marginTop: 10,

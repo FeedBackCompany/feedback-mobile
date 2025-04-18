@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import CompanyPost from './screens/feed/CompanyPost';
@@ -7,15 +7,74 @@ import { Ionicons } from '@expo/vector-icons';
 import ProfileStack from './screens/profile/ProfileStack';
 import SearchStack from './screens/search/SearchStack';
 import { Stack, Tab } from '../lib/navigation';
+import CompanyProfile from './screens/profile/CompanyProfile';
+import PublicProfile from './screens/profile/PublicProfile';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import { supabase } from '../lib/supabase';
+import { ActivityIndicator, View } from 'react-native';
+import Profile from './screens/profile/Profile';
 
 type ScreenName = 'Feed' | 'Search' | 'Profile';
 
 const FeedStack = () => {
+    const { user } = useCurrentUser();
+    const [isCompany, setIsCompany] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const checkIfCompany = async () => {
+            if (!user) return;
+
+            const { data, error } = await supabase
+                .from('company_profiles')
+                .select('id')
+                .eq('id', user.id)
+                .single();
+
+            setIsCompany(!!data && !error);
+        };
+
+        checkIfCompany();
+    }, [user]);
+
+    if (isCompany === null) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
+
     return (
         <Stack.Navigator>
             <Stack.Screen name="Feed Page" component={Feed} options={{ headerShown: false }} />
+
             <Stack.Screen
                 name="Company Post"
+                component={CompanyPost}
+                options={{
+                    headerShown: false,
+                    animation: 'fade',
+                    presentation: 'card',
+                    animationDuration: 100
+                }}
+            />
+            <Stack.Screen
+                name="Company Profile"
+                component={CompanyProfile}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Public Profile"
+                component={PublicProfile}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Your Profile"
+                component={isCompany ? CompanyProfile : Profile}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Company Post In Profile"
                 component={CompanyPost}
                 options={{
                     headerShown: false,
@@ -27,6 +86,7 @@ const FeedStack = () => {
         </Stack.Navigator>
     );
 };
+
 
 export default function BottomTabs() {
     const getIcon = (page: ScreenName, color: string, size: number) => {

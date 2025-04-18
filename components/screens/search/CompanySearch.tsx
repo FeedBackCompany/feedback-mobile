@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { supabase } from '../../../lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
 
 interface CompanySearchProps {
     searchQuery: string;
@@ -10,6 +11,7 @@ interface CompanySearchProps {
 
 export default function CompanySearch({ searchQuery, navigation }: CompanySearchProps) {
     const [companies, setCompanies] = useState<any[]>([]);
+    const { user } = useCurrentUser();
 
     useEffect(() => {
         if (searchQuery.length === 0) {
@@ -24,7 +26,8 @@ export default function CompanySearch({ searchQuery, navigation }: CompanySearch
                 .ilike('legal_business_name', `%${searchQuery}%`); // Search by company name
 
             if (data) {
-                setCompanies(data);
+                const filtered = data.filter(u => u.id !== user?.id);
+                setCompanies(filtered);
             } else {
                 console.error(error);
             }

@@ -6,14 +6,20 @@ import {
     TouchableOpacity,
     TextInput,
     Switch,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { EventRegister } from 'react-native-event-listeners'
 import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { supabase } from '../../lib/supabase'
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function UserAdminSettings({ _navigation, route }: any) {
+
+export default function UserAdminSettings({ navigation, route }: any) {
+    const insets = useSafeAreaInsets();
     const { logoutUser } = useCurrentUser()
     const profile = route?.params?.profile
     const { user } = useCurrentUser()
@@ -96,9 +102,21 @@ export default function UserAdminSettings({ _navigation, route }: any) {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.container}>
-                <Text style={styles.title}>Admin Settings</Text>
+        <View style={{ flex: 1, backgroundColor: '#fff', paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }}>
+            <ScrollView
+                style={{ flex: 1, backgroundColor: '#fff' }}
+                contentContainerStyle={{ padding: 16 }}
+                contentInset={{ bottom: 0, top: 0 }}
+                contentInsetAdjustmentBehavior="never"
+                keyboardShouldPersistTaps="handled"
+            >
+
+                <View style={styles.settingsHeader}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <AntDesign name="arrowleft" size={34} color="black" />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Admin Settings</Text>
+                </View>
 
                 <View style={styles.personalInfoContainer}>
                     <Text style={styles.sectionHeaderText}>Personal Info</Text>
@@ -169,34 +187,43 @@ export default function UserAdminSettings({ _navigation, route }: any) {
                             multiline
                         />
                     </View>
+                </View>
 
-
-                    <Text style={styles.fieldTitle}>Show Comments Publicly</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                        <Text style={{ fontSize: 16, marginRight: 10 }}>
-                            {tempShowComments ? 'Yes' : 'No'}
-                        </Text>
-                        <Switch
-                            value={tempShowComments}
-                            onValueChange={setTempShowComments}
-                            disabled={!isEditing}
-                        />
-                    </View>
-
+                <Text style={styles.fieldTitle}>Show Comments Publicly</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <Text style={{ fontSize: 16, marginRight: 10 }}>
+                        {tempShowComments ? 'Yes' : 'No'}
+                    </Text>
+                    <Switch
+                        value={tempShowComments}
+                        onValueChange={setTempShowComments}
+                    />
                 </View>
 
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                     <Text style={styles.logoutButtonText}>Log Out</Text>
                 </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+            </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+    container: {
+        flex: 1,
+        // padding: 16,
+
+        backgroundColor: '#fff',
+    },
+    settingsHeader: {
+        flexDirection: 'row',
+    },
     title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
     // Personal Info Container Styles
+    backButton: {
+        marginTop: -2,
+        marginRight: 15,
+    },
     personalInfoContainer: {
         backgroundColor: '#f7f7f7', // Light gray background to highlight the section
         padding: 16,
