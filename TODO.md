@@ -2,6 +2,12 @@
 
 _____ = IMPORTANT
 
+### admin settings Page  
+- make profile highlight disappear
+
+### Auth Page  
+- make keyboards dismiss
+
 ### Profile Page    
 - allow user to change profile pic
 - Make separate settings page for company/user **
@@ -33,8 +39,10 @@ _____ = IMPORTANT
 - order comments by most likes to least. store votes in table not state.
 - allow only companies to reply to the message, and users only after a company responds and so on. 
 - allow companys to request to delete a comment. comment will be hidden until team makes decision.
-- add 3 dots to commenter's comment and show edit/delete. 
-- show how long ago the comment was posted
+- add 3 dots to commenter's comment and show edit/delete. ***
+- show how long ago the comment was posted ***
+- fix scroll on comments
+- fix margin on 'write a comment' container
 
 ### stack ___________
 - make one stack file

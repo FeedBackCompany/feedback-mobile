@@ -6,14 +6,12 @@ import { EventRegister } from 'react-native-event-listeners';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 
-import UserAdminSettings from './components/screens/UserAdminSettings';
 import BottomTabs from './components/BottomTabs';
 import Auth from './components/Auth';
 
 import { BookmarksProvider } from './hooks/useBookmarks';
 import { CurrentUserProvider } from './hooks/useCurrentUser';
 import { CurrentPostProvider } from './hooks/useCurrentPost';
-import CompanyAdminSettings from './components/screens/CompanyAdminSettings';
 import { VisitedScreensProvider } from './hooks/useVisitedScreens';
 import { Stack } from './lib/navigation';
 
@@ -53,7 +51,6 @@ export default function App() {
                     ) : (
                       <Stack.Group>
                         <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
-                        <Stack.Screen name="CompanyAdminSettings" component={CompanyAdminSettings} options={{ headerShown: false }} />
                       </Stack.Group>
                     )}
                   </Stack.Navigator>
