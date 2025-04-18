@@ -7,16 +7,12 @@ import {
     TextInput,
     Switch,
     ScrollView,
-    KeyboardAvoidingView,
-    Platform,
 } from 'react-native'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { EventRegister } from 'react-native-event-listeners'
 import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { supabase } from '../../lib/supabase'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 
 export default function UserAdminSettings({ navigation, route }: any) {
     const insets = useSafeAreaInsets();

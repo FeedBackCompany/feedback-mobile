@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Animated } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { supabase } from '../../../lib/supabase'
 import { MaterialIcons, AntDesign } from '@expo/vector-icons'
 import FollowingList from '../FollowingList'

@@ -31,7 +31,7 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function CompanyPostCard({ navigation, post, isFirstInFeed }: CompanyPostCardProps) {
     const { id, title, description, reward, status, company } = post;
-    const [signedUrl, setSignedUrl] = useState('');
+    const [signedUrl, _setSignedUrl] = useState('');
     const { name } = company;
 
     const { updateCurrentPost } = useCurrentPost();

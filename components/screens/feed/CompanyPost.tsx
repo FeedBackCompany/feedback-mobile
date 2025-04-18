@@ -12,7 +12,7 @@ import {
     Alert,
     Pressable,
 } from 'react-native';
-import { Title, Paragraph, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { CurrencyDisplay } from '../../ui/CurrencyDisplay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCurrentPost } from '../../../hooks/useCurrentPost';
@@ -23,7 +23,6 @@ import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { PostStatus } from '../../../types/posts';
 import Modal from 'react-native-modal';
 
-
 export default function CompanyPost({ _route, navigation }: any) {
     const { currentPost, clearCurrentPost } = useCurrentPost();
     const [comments, setComments] = useState<any[]>([]);
@@ -31,7 +30,7 @@ export default function CompanyPost({ _route, navigation }: any) {
     const { user } = useCurrentUser();
     const [commentModalVisible, setCommentModalVisible] = useState(false);
     const [selectedComment, setSelectedComment] = useState<any>(null);
-    const [editedComment, setEditedComment] = useState('');
+    const [_editedComment, setEditedComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingText, setEditingText] = useState('');
 
