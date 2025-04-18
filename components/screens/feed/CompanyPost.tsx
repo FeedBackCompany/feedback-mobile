@@ -314,9 +314,14 @@ export default function CompanyPost({ _route, navigation }: any) {
                     onSwipeComplete={() => setCommentModalVisible(false)}
                     swipeDirection="down"
                     backdropOpacity={0}
-                    useNativeDriver={true}
+                    useNativeDriver
+                    propagateSwipe
+                    animationIn="slideInUp"
+                    animationOut="slideOutDown"
                     style={styles.bottomModal}
                     backdropTransitionOutTiming={0}
+                    animationInTiming={600}
+                    animationOutTiming={700}
                 >
                     <View style={styles.modalBackdrop}>
                         <Pressable style={{ flex: 1 }} onPress={() => setCommentModalVisible(false)} />
@@ -376,6 +381,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+        paddingBottom: -15,
     },
     postCard: {
         padding: 16,
@@ -455,6 +461,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 10,
+        // paddingBottom: 25,
+        marginBottom: 15,
         borderTopWidth: 1,
         borderColor: '#ccc',
         backgroundColor: '#fff',
@@ -519,19 +527,19 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         padding: 16,
-        paddingBottom: 32,
+        paddingBottom: 52,
     },
     modalHandle: {
-        width: 80,
-        height: 4,
+        width: 86,
+        height: 6,
         backgroundColor: '#ccc',
-        borderRadius: 2,
+        borderRadius: 4,
         alignSelf: 'center',
-        marginBottom: 12,
+        marginBottom: 15,
     },
     modalTitle: {
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 20,
         marginBottom: 12,
         textAlign: 'center',
         color: 'white',
@@ -543,9 +551,13 @@ const styles = StyleSheet.create({
     },
     modalDeleteText: {
         color: 'red',
+        margin: 5,
+        fontSize: 18,
     },
     modalEditText: {
         color: 'white',
+        margin: 5,
+        fontSize: 18,
     },
     optionWrapper: {
         paddingHorizontal: 16,

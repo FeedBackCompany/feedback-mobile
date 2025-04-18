@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { supabase } from '../../../lib/supabase';
 import { AntDesign } from '@expo/vector-icons';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
@@ -43,31 +43,30 @@ export default function UserSearch({ searchQuery, navigation }: UserSearchProps)
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.resultsContainer}>
-                <FlatList
-                    keyboardShouldPersistTaps="handled"
-                    data={users}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.card} onPress={() => {
-                            Keyboard.dismiss();
-                            handleUserPress(item.id)
-                        }}>
-                            {item.profile_image_url ? (
-                                <Image
-                                    source={{ uri: item.profile_image_url }}
-                                    style={styles.profileImage}
-                                />
-                            ) : (
-                                <View style={styles.avatarContainer}>
-                                    <AntDesign name="user" size={50} color="gray" />
-                                </View>
-                            )}
-                            <Text style={styles.userName}>{item.full_name}</Text>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
+            <FlatList
+                keyboardShouldPersistTaps="handled"
+                data={users}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.card} onPress={() => {
+                        Keyboard.dismiss();
+                        handleUserPress(item.id)
+                    }}>
+                        {item.profile_image_url ? (
+                            <Image
+                                source={{ uri: item.profile_image_url }}
+                                style={styles.profileImage}
+                            />
+                        ) : (
+                            <View style={styles.avatarContainer}>
+                                <AntDesign name="user" size={50} color="gray" />
+                            </View>
+                        )}
+                        <Text style={styles.userName}>{item.full_name}</Text>
+                    </TouchableOpacity>
+                )}
+            />
         </TouchableWithoutFeedback>
     );
 }

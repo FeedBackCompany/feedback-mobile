@@ -185,15 +185,17 @@ export default function UserAdminSettings({ navigation, route }: any) {
                     </View>
                 </View>
 
-                <Text style={styles.fieldTitle}>Show Comments Publicly</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                    <Text style={{ fontSize: 16, marginRight: 10 }}>
-                        {tempShowComments ? 'Yes' : 'No'}
-                    </Text>
-                    <Switch
-                        value={tempShowComments}
-                        onValueChange={setTempShowComments}
-                    />
+                <View style={styles.publicCommentShowContainer}>
+                    <Text style={styles.fieldTitle}>Show Comments Publicly</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                        <Text style={{ fontSize: 16, marginRight: 10 }}>
+                            {tempShowComments ? 'Yes' : 'No'}
+                        </Text>
+                        <Switch
+                            value={tempShowComments}
+                            onValueChange={setTempShowComments}
+                        />
+                    </View>
                 </View>
 
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
@@ -221,9 +223,12 @@ const styles = StyleSheet.create({
         marginRight: 15,
     },
     personalInfoContainer: {
-        backgroundColor: '#f7f7f7', // Light gray background to highlight the section
+        backgroundColor: 'white', // Light gray background to highlight the section
         padding: 16,
         borderRadius: 10,
+        borderRightWidth: .8,
+        borderLeftWidth: .8,
+        borderColor: 'black',
         marginBottom: 20, // Add space between the sections
     },
     sectionHeaderText: {
@@ -327,6 +332,13 @@ const styles = StyleSheet.create({
     },
     logoutButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
     // Styling for the professional field titles
+    publicCommentShowContainer: {
+        padding: 10,
+        borderRadius: 10,
+        borderTopWidth: .4,
+        borderBottomWidth: .4,
+        borderColor: 'black',
+    },
     fieldTitle: {
         fontSize: 16,
         fontWeight: '700',
