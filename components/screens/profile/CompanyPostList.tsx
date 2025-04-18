@@ -3,8 +3,6 @@ import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native
 import { supabase } from '../../../lib/supabase';
 import { useCurrentPost } from '../../../hooks/useCurrentPost';
 import type { PostWithRelations } from '../../../types/posts';
-import { FlashList } from '@shopify/flash-list';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CompanyPostList({ companyId, navigation }: { companyId: string, navigation: any }) {
     const [posts, setPosts] = useState<any[]>([]);
