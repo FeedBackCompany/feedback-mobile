@@ -2,12 +2,6 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-<<<<<<< Updated upstream
     "moduleResolution": "bundler",
-  }
-=======
-    "types": ["env"]
   },
-  "include": ["."]
->>>>>>> Stashed changes
 }
