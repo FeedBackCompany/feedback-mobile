@@ -59,13 +59,14 @@ export default function SearchWrapper({ navigation }: any) {
                 <View style={styles.filterRow}>
                     <View style={[
                         styles.filterContainer,
-                        isFocused && styles.filterContainerActive,
                     ]}>
 
                         <Pressable style={styles.filterButton} onPress={() => setModalVisible(true)}>
                             <Text style={styles.filterButtonText}>Filter by:</Text>
                         </Pressable>
-                        <Text style={styles.selectedFilter}>{searchTypeDisplay}</Text>
+                        <View style={styles.selectedFilterCont}>
+                            <Text style={styles.selectedFilter}>{searchTypeDisplay}</Text>
+                        </View>
                     </View>
                 </View>
 
@@ -153,37 +154,42 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
         flexDirection: 'row',
-        borderRightWidth: 1,
-        borderBottomWidth: 1,
+        // borderRightWidth: 1,
+        // borderBottomWidth: 1,
         borderBottomColor: '#000',
         borderRightColor: '#000',
     },
-    filterContainerActive: {
-        flexDirection: 'row',
-        borderRightWidth: 1,
-        borderBottomWidth: 1,
-        borderBottomColor: '#007AFF',
-        borderRightColor: '#007AFF',
-    },
     filterButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: 'black',
         paddingVertical: 8,
         paddingHorizontal: 12,
         borderRadius: 8,
-        marginBottom: 6,
-        marginRight: 8,
+        marginBottom: 2,
+        marginTop: .5,
+        marginRight: 0,
     },
     filterButtonText: {
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 16,
     },
+    selectedFilterCont: {
+        borderRadius: 10,
+        borderBottomWidth: 1,
+        borderRightWidth: 1,
+        borderTopWidth: 1,
+        borderColor: '#000',
+        marginBottom: 3,
+        marginTop: 2,
+        backgroundColor: '#f0f0f0',
+    },
     selectedFilter: {
         fontSize: 16,
-        marginTop: 8,
-        marginRight: 6,
-        fontWeight: 800,
-        color: '#555',
+        marginTop: 6,
+        marginRight: 8,
+        marginLeft: 8,
+        fontWeight: 600,
+        color: 'black',
     },
     modalOverlay: {
         flex: 1,
