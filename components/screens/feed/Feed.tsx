@@ -129,11 +129,6 @@ export default function Feed({ route, navigation }: any) {
             let query = supabase
                 .from('posts')
                 .select('*, company:company_profiles(*)')
-<<<<<<< Updated upstream
-                .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1)
-                .order('created_at', { ascending: false });
-
-=======
                 .limit(POSTS_PER_PAGE);
 
             // Apply all sort orders
@@ -161,23 +156,15 @@ export default function Feed({ route, navigation }: any) {
 
             const { data, error } = await query;
                 
->>>>>>> Stashed changes
             if (error) throw error;
 
             if (!data || data.length < POSTS_PER_PAGE) {
                 setHasMore(false);
             }
-<<<<<<< Updated upstream
-
-            if (page === 0) {
-                setPosts(data);
-                if (data.length > 0) setFirstPostId(data[0].id);
-=======
             
             if (page === 0 || sortOrderChanged) {
                 setPosts(data || []);
                 if (data?.length > 0) setFirstPostId(data[0].id);
->>>>>>> Stashed changes
             } else {
                 setPosts(prev => [...prev, ...(data || [])]);
             }
@@ -197,25 +184,6 @@ export default function Feed({ route, navigation }: any) {
     }
 
     return (
-<<<<<<< Updated upstream
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <FlashList
-                style={styles.container}
-                data={posts}
-                renderItem={({ item }) => {
-                    return <CompanyPostCard
-                        post={item}
-                        route={route}
-                        navigation={navigation}
-                        isFirstInFeed={item.id === firstPostId}
-                    />;
-                }}
-                estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
-                onEndReached={loadMore}
-                onEndReachedThreshold={0.3}
-            />
-        </SafeAreaView>
-=======
         <PaperProvider>
             <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
                 <View style={styles.header}>
@@ -288,7 +256,6 @@ export default function Feed({ route, navigation }: any) {
                 </Animated.View>
             </SafeAreaView>
         </PaperProvider>
->>>>>>> Stashed changes
     )
 }
 
