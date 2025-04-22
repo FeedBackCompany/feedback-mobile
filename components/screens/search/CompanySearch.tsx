@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { supabase } from '../../../lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
@@ -44,31 +44,30 @@ export default function CompanySearch({ searchQuery, navigation }: CompanySearch
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.resultsContainer}>
-                <FlatList
-                    keyboardShouldPersistTaps="handled"
-                    data={companies}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.card} onPress={() => {
-                            Keyboard.dismiss();
-                            handleCompanyPress(item.id)
-                        }}>
-                            {item.profile_image_url ? (
-                                <Image
-                                    source={{ uri: item.profile_image_url }}
-                                    style={styles.profileImage}
-                                />
-                            ) : (
-                                <View style={styles.avatarContainer}>
-                                    <MaterialIcons name="business" size={50} color="gray" />
-                                </View>
-                            )}
-                            <Text style={styles.companyName}>{item.legal_business_name}</Text>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
+            <FlatList
+                keyboardShouldPersistTaps="handled"
+                data={companies}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.card} onPress={() => {
+                        Keyboard.dismiss();
+                        handleCompanyPress(item.id)
+                    }}>
+                        {item.profile_image_url ? (
+                            <Image
+                                source={{ uri: item.profile_image_url }}
+                                style={styles.profileImage}
+                            />
+                        ) : (
+                            <View style={styles.avatarContainer}>
+                                <MaterialIcons name="business" size={50} color="gray" />
+                            </View>
+                        )}
+                        <Text style={styles.companyName}>{item.legal_business_name}</Text>
+                    </TouchableOpacity>
+                )}
+            />
         </TouchableWithoutFeedback>
     );
 }

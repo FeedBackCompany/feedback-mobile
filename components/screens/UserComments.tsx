@@ -74,6 +74,7 @@ export default function UserComments({ userId, navigation }: { userId: string, n
 
             <FlatList
                 data={comments}
+                showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => handleCommentPress(item.post)}>
                         <View style={styles.commentContainer}>
