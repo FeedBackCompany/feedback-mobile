@@ -23,14 +23,16 @@ export default function UserAdminSettings({ navigation, route }: any) {
     const [username, setUsername] = useState(profile?.username || '')
     const [fullName, setFullName] = useState(profile?.full_name || '')
     const [bio, setBio] = useState(profile?.bio || '')
-    const [showComments, setShowComments] = useState(profile?.show_comments ?? true)  //added
+    const [showComments, setShowComments] = useState(profile?.show_comments ?? true)
 
     const [tempUsername, setTempUsername] = useState(username)
     const [tempFullName, setTempFullName] = useState(fullName)
     const [tempBio, setTempBio] = useState(bio)
-    const [tempShowComments, setTempShowComments] = useState(showComments) // added
+    const [tempShowComments, setTempShowComments] = useState(showComments)
 
     const [isEditing, setIsEditing] = useState(false)
+    const [isPersonalInfoCollapsed, setIsPersonalInfoCollapsed] = useState(true)
+    const [isCommentsCollapsed, setIsCommentsCollapsed] = useState(true)
 
     const handleLogout = async () => {
         const { error } = await logoutUser()
@@ -56,11 +58,10 @@ export default function UserAdminSettings({ navigation, route }: any) {
         setTempUsername(username)
         setTempFullName(fullName)
         setTempBio(bio)
-        setTempShowComments(showComments) // ⬅️ ADDED
+        setTempShowComments(showComments)
         setIsEditing(false)
     }
 
-    // Update the profile information in the backend
     const updateProfile = async (newUsername: string, newFullName: string, newBio: string, newShowComments: boolean) => {
         try {
             if (!user) {
@@ -69,31 +70,30 @@ export default function UserAdminSettings({ navigation, route }: any) {
             }
 
             const { data, error } = await supabase
-                .from('profiles') // Use your profiles table name
+                .from('profiles')
                 .upsert({
-                    id: user.id,  // Use the user's ID from Supabase
+                    id: user.id,
                     username: newUsername,
                     full_name: newFullName,
                     description: newBio,
-                    show_comments: newShowComments, // ⬅️ ADDED
+                    show_comments: newShowComments,
                 })
                 .single()
 
             if (error) {
                 console.error("Error updating profile:", error.message)
-                handleDiscard()  // Optionally, revert changes on error
+                handleDiscard()
                 return
             }
 
-            // Update local state if successful
             console.log('Profile updated successfully:', data)
             setUsername(newUsername)
             setFullName(newFullName)
             setBio(newBio)
-            setShowComments(newShowComments) // ⬅️ ADDED
+            setShowComments(newShowComments)
         } catch (error) {
             console.error("Error updating profile:", error)
-            handleDiscard()  // Optionally, revert changes on error
+            handleDiscard()
         }
     }
 
@@ -111,89 +111,110 @@ export default function UserAdminSettings({ navigation, route }: any) {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                         <AntDesign name="arrowleft" size={34} color="black" />
                     </TouchableOpacity>
-                    <Text style={styles.title}>Admin Settings</Text>
+                    <Text style={styles.title}>Settings</Text>
                 </View>
 
                 <View style={styles.personalInfoContainer}>
-                    <Text style={styles.sectionHeaderText}>Personal Info</Text>
+                    <TouchableOpacity
+                        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                        onPress={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
+                    >
+                        <Text style={styles.sectionHeaderText}>Personal Info</Text>
+                        <AntDesign name={isPersonalInfoCollapsed ? "plus" : "minus"} size={20} color="black" />
+                    </TouchableOpacity>
 
-                    <View style={styles.profileRow}>
-                        <View style={styles.avatarContainer}>
-                            {/* Profile Image Background */}
-                            <AntDesign name="user" size={50} color="gray" />
-
-                            {isEditing && (
-                                <TouchableOpacity
-                                    onPress={handleEditProfilePicture}
-                                    style={styles.changeImageButton}
-                                >
-                                    <FontAwesome6 name="image-portrait" size={34} color="white" />
-                                </TouchableOpacity>
-                            )}
-                        </View>
-
-                        <View>
-                            {!isEditing && (
-                                <TouchableOpacity
-                                    onPress={handleEditToggle}
-                                    style={styles.editButton}
-                                >
-                                    <MaterialIcons name="edit" size={20} color="#fff" />
-                                    <Text style={styles.editButtonText}>Edit</Text>
-                                </TouchableOpacity>
-                            )}
-
-                            {isEditing && (
-                                <View style={styles.editActions}>
-                                    <TouchableOpacity onPress={handleDone} style={styles.doneButton}>
-                                        <Text style={styles.doneText}>Update</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={handleDiscard} style={styles.discardButton}>
-                                        <Text style={styles.discardText}>Discard</Text>
-                                    </TouchableOpacity>
+                    {!isPersonalInfoCollapsed && (
+                        <>
+                            <View style={styles.profileRow}>
+                                <View style={styles.avatarContainer}>
+                                    <AntDesign name="user" size={50} color="gray" />
+                                    {isEditing && (
+                                        <TouchableOpacity
+                                            onPress={handleEditProfilePicture}
+                                            style={styles.changeImageButton}
+                                        >
+                                            <FontAwesome6 name="image-portrait" size={34} color="white" />
+                                        </TouchableOpacity>
+                                    )}
                                 </View>
-                            )}
-                        </View>
-                    </View>
 
-                    <View style={styles.personalInfoSection}>
-                        <Text style={styles.fieldTitle}>Username</Text>
-                        <TextInput
-                            style={[styles.input, isEditing && styles.inputEditing]}
-                            value={tempUsername}
-                            onChangeText={setTempUsername}
-                            placeholder="Username"
-                            editable={isEditing}
-                        />
-                        <Text style={styles.fieldTitle}>Full Name</Text>
-                        <TextInput
-                            style={[styles.input, isEditing && styles.inputEditing]}
-                            value={tempFullName}
-                            onChangeText={setTempFullName}
-                            placeholder="Full Name"
-                            editable={isEditing}
-                        />
-                        <Text style={styles.fieldTitle}>Bio</Text>
-                        <TextInput
-                            style={[styles.input, styles.bioInput, isEditing && styles.inputEditing]}
-                            value={tempBio}
-                            onChangeText={setTempBio}
-                            placeholder="Enter Bio"
-                            editable={isEditing}
-                            multiline
-                        />
-                    </View>
+                                <View>
+                                    {!isEditing && (
+                                        <TouchableOpacity
+                                            onPress={handleEditToggle}
+                                            style={styles.editButton}
+                                        >
+                                            <MaterialIcons name="edit" size={20} color="#fff" />
+                                            <Text style={styles.editButtonText}>Edit</Text>
+                                        </TouchableOpacity>
+                                    )}
+
+                                    {isEditing && (
+                                        <View style={styles.editActions}>
+                                            <TouchableOpacity onPress={handleDone} style={styles.doneButton}>
+                                                <Text style={styles.doneText}>Update</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={handleDiscard} style={styles.discardButton}>
+                                                <Text style={styles.discardText}>Discard</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
+                                </View>
+                            </View>
+
+                            <View style={styles.personalInfoSection}>
+                                <Text style={styles.fieldTitle}>Username</Text>
+                                <TextInput
+                                    style={[styles.input, isEditing && styles.inputEditing]}
+                                    value={tempUsername}
+                                    onChangeText={setTempUsername}
+                                    placeholder="Username"
+                                    editable={isEditing}
+                                />
+                                <Text style={styles.fieldTitle}>Full Name</Text>
+                                <TextInput
+                                    style={[styles.input, isEditing && styles.inputEditing]}
+                                    value={tempFullName}
+                                    onChangeText={setTempFullName}
+                                    placeholder="Full Name"
+                                    editable={isEditing}
+                                />
+                                <Text style={styles.fieldTitle}>Bio</Text>
+                                <TextInput
+                                    style={[styles.input, styles.bioInput, isEditing && styles.inputEditing]}
+                                    value={tempBio}
+                                    onChangeText={setTempBio}
+                                    placeholder="Enter Bio"
+                                    editable={isEditing}
+                                    multiline
+                                />
+                            </View>
+                        </>
+                    )}
                 </View>
 
-                <Text style={styles.fieldTitle}>Show Comments Publicly</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                    <Text style={{ fontSize: 16, marginRight: 10 }}>
-                        {tempShowComments ? 'Yes' : 'No'}
-                    </Text>
-                    <Switch
-                        value={tempShowComments}
-                        onValueChange={setTempShowComments}
-                    />
+                <View style={styles.publicCommentShowContainer}>
+                    <TouchableOpacity
+                        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                        onPress={() => setIsCommentsCollapsed(!isCommentsCollapsed)}
+                    >
+                        <Text style={styles.sectionHeaderText}>Show Comments Publicly</Text>
+                        <AntDesign name={isCommentsCollapsed ? "plus" : "minus"} size={20} color="black" />
+                    </TouchableOpacity>
+
+                    {!isCommentsCollapsed && (
+                        <View style={{ marginTop: 12 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                                <Text style={{ fontSize: 16, marginRight: 10 }}>
+                                    {tempShowComments ? 'Yes' : 'No'}
+                                </Text>
+                                <Switch
+                                    value={tempShowComments}
+                                    onValueChange={setTempShowComments}
+                                />
+                            </View>
+                        </View>
+                    )}
                 </View>
 
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
@@ -207,24 +228,24 @@ export default function UserAdminSettings({ navigation, route }: any) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // padding: 16,
-
         backgroundColor: '#fff',
     },
     settingsHeader: {
         flexDirection: 'row',
     },
     title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-    // Personal Info Container Styles
     backButton: {
         marginTop: -2,
         marginRight: 15,
     },
     personalInfoContainer: {
-        backgroundColor: '#f7f7f7', // Light gray background to highlight the section
+        backgroundColor: 'white',
         padding: 16,
         borderRadius: 10,
-        marginBottom: 20, // Add space between the sections
+        borderRightWidth: .8,
+        borderLeftWidth: .8,
+        borderColor: 'black',
+        marginBottom: 20,
     },
     sectionHeaderText: {
         fontSize: 18,
@@ -292,27 +313,27 @@ const styles = StyleSheet.create({
     doneText: { color: '#fff', fontWeight: 'bold' },
     discardText: { color: '#fff', fontWeight: 'bold' },
     input: {
-        backgroundColor: '#f7f7f7', // Light gray background
-        padding: 12, // Adequate padding for a spacious feel
-        borderRadius: 8, // Rounded corners for smooth edges
-        fontSize: 16, // Standard font size for readability
-        marginBottom: 12, // Spacing between fields
-        borderWidth: 0, // Subtle border for structure
-        borderColor: '#ddd', // Light gray border to indicate the input field
-        shadowColor: '#000', // Shadow effect for depth
-        shadowOpacity: 0.6, // Soft shadow to make it stand out
-        shadowOffset: { width: 6, height: 6 }, // Slightly raised appearance
-        shadowRadius: 4, // Soft shadow radius
-        elevation: 2, // For Android devices to match iOS shadow
+        backgroundColor: '#f7f7f7',
+        padding: 12,
+        borderRadius: 8,
+        fontSize: 16,
+        marginBottom: 12,
+        borderWidth: 0,
+        borderColor: '#ddd',
+        shadowColor: '#000',
+        shadowOpacity: 0.6,
+        shadowOffset: { width: 6, height: 6 },
+        shadowRadius: 4,
+        elevation: 2,
     },
     inputEditing: {
         borderColor: '#4c6aa6',
         borderWidth: 2,
         backgroundColor: '#fff',
-        shadowColor: 'transparent', // Shadow effect for depth
-        shadowOpacity: 0.6, // Soft shadow to make it stand out
-        shadowOffset: { width: 6, height: 6 }, // Slightly raised appearance
-        shadowRadius: 4, // Soft shadow radius
+        shadowColor: 'transparent',
+        shadowOpacity: 0.6,
+        shadowOffset: { width: 6, height: 6 },
+        shadowRadius: 4,
     },
     bioInput: {
         height: 80,
@@ -326,23 +347,26 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     logoutButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-    // Styling for the professional field titles
+    publicCommentShowContainer: {
+        backgroundColor: 'white',
+        padding: 16,
+        borderRadius: 10,
+        borderRightWidth: .8,
+        borderLeftWidth: .8,
+        borderColor: 'black',
+        marginBottom: 20,
+    },
     fieldTitle: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#000000', // A dark gray color for the titles
+        color: '#000000',
         marginBottom: 6,
-        textTransform: 'capitalize', // Makes the first letter of each word uppercase
+        textTransform: 'capitalize',
     },
-
-    // Add a section for personal info styling
     personalInfoSection: {
-        backgroundColor: '#ffff', // Lighter shade than background
+        backgroundColor: '#ffff',
         padding: 16,
         borderRadius: 12,
         marginBottom: 20,
     },
 })
-
-
-
