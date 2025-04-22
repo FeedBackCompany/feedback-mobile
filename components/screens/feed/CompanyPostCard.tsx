@@ -208,7 +208,8 @@ const styles = StyleSheet.create({
         margin: 12,
         padding: 12,
         borderRadius: 3,
-        zIndex: 1
+        zIndex: 1,
+        backgroundColor: 'white'
     },
     actionsContainer: {
         marginRight: 15,
