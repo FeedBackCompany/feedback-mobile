@@ -11,7 +11,8 @@ import Feather from '@expo/vector-icons/Feather';
 import CompanyPostCard from './CompanyPostCard';
 import FilterModal from './FilterModal';
 
-import type { PostWithRelations } from '../../../types/posts';
+import { PostStatus, type PostWithRelations } from '../../../types/posts';
+import type { FilterOptions } from '../../../types/filters';
 
 type SortOption = {
     label: 'Most Recent' | 'Oldest' | 'Reward: Low to High' | 'Reward: High to Low';
@@ -43,7 +44,6 @@ const SORT_OPTIONS: SortOption[] = [
     value: 'reward_asc', 
     query: [
       { column: 'reward', ascending: true },
-      { column: 'created_at', ascending: false }
     ]
   },
   { 
@@ -51,10 +51,16 @@ const SORT_OPTIONS: SortOption[] = [
     value: 'reward_desc', 
     query: [
       { column: 'reward', ascending: false },
-      { column: 'created_at', ascending: false }
     ]
   }
 ];
+
+const defaultFilters: FilterOptions = {
+    minReward: 0,
+    maxReward: 10000,
+    status: [PostStatus.OPEN, PostStatus.CLOSING_SOON],
+    createdWithin: 'all',
+};
 
 export default function Feed({ route, navigation }: any) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -63,13 +69,16 @@ export default function Feed({ route, navigation }: any) {
     const [page, setPage] = useState<number>(0);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [showScrollToTop, setShowScrollToTop] = useState(false);
-
+    
     const [filterModalVisible, setFilterModalVisible] = useState(false);
+    const [filtersHaveChangedFromDefault, setFiltersHaveChangedFromDefault] = useState(false);
+    const [filters, setFilters] = useState<FilterOptions>({ ...defaultFilters });
+
     const [sortMenuVisible, setSortMenuVisible] = useState(false);
     const [selectedSort, setSelectedSort] = useState(SORT_OPTIONS[0]);
 
     const toggleFilterModal = () => {
-        setFilterModalVisible(!filterModalVisible);
+        setFilterModalVisible((prev) => !prev);
     };
 
     const listRef = useRef<FlashList<PostWithRelations>>(null);
@@ -113,11 +122,26 @@ export default function Feed({ route, navigation }: any) {
         getPosts(option);
     };
 
+    const handleApplyFilters = (newFilters: FilterOptions) => {
+        const defaultFiltersCopy = { ...defaultFilters };
+        setFiltersHaveChangedFromDefault(
+            defaultFiltersCopy.createdWithin !== newFilters.createdWithin
+            || defaultFiltersCopy.maxReward !== newFilters.maxReward
+            || defaultFiltersCopy.minReward !== newFilters.minReward
+            || defaultFiltersCopy.status.length !== newFilters.status.length
+        );
+        setFilters(newFilters);
+        setPage(0);
+        setHasMore(true);
+        setPosts([]);
+        getPosts(selectedSort, newFilters);
+    };
+
     useEffect(() => {
         getPosts(selectedSort);
     }, [])
 
-    const getPosts = async (sortOption?: SortOption) => {
+    const getPosts = async (sortOption?: SortOption, filterOptions = filters) => {
         setLoading(true);
         try {
             const sortOrderChanged = !!sortOption;
@@ -129,12 +153,37 @@ export default function Feed({ route, navigation }: any) {
             let query = supabase
                 .from('posts')
                 .select('*, company:company_profiles(*)')
-<<<<<<< Updated upstream
-                .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1)
-                .order('created_at', { ascending: false });
-
-=======
                 .limit(POSTS_PER_PAGE);
+
+            // Apply filters
+            if (filterOptions.minReward > 0) {
+                query = query.gte('reward', filterOptions.minReward);
+            }
+            if (filterOptions.maxReward < 10000) {
+                query = query.lte('reward', filterOptions.maxReward);
+            }
+            if (filterOptions.status.length > 0) {
+                query = query.in('status', filterOptions.status);
+            }
+            if (filterOptions.createdWithin !== 'all') {
+                const now = new Date();
+                let fromDate = new Date();
+                
+                switch (filterOptions.createdWithin) {
+                    case '24h':
+                        fromDate.setHours(now.getHours() - 24);
+                        break;
+                    case '7d':
+                        fromDate.setDate(now.getDate() - 7);
+                        break;
+                    case '30d':
+                        fromDate.setDate(now.getDate() - 30);
+                        break;
+                }
+                
+                query = query.gte('created_at', fromDate.toISOString());
+            }
+
 
             // Apply all sort orders
             sortOption.query.forEach(sort => {
@@ -142,7 +191,7 @@ export default function Feed({ route, navigation }: any) {
             });
 
             // If not first page, get posts after the last post we have
-            if (page > 0 && posts.length > 0) {
+            if (page > 0 && !sortOrderChanged && posts.length > 0) {
                 const lastPost = posts[posts.length - 1];
                 const primarySort = sortOption.query[0];
                 const compareValue = lastPost[primarySort.column];
@@ -160,24 +209,16 @@ export default function Feed({ route, navigation }: any) {
             }
 
             const { data, error } = await query;
-                
->>>>>>> Stashed changes
+
             if (error) throw error;
 
             if (!data || data.length < POSTS_PER_PAGE) {
                 setHasMore(false);
             }
-<<<<<<< Updated upstream
-
-            if (page === 0) {
-                setPosts(data);
-                if (data.length > 0) setFirstPostId(data[0].id);
-=======
             
             if (page === 0 || sortOrderChanged) {
                 setPosts(data || []);
                 if (data?.length > 0) setFirstPostId(data[0].id);
->>>>>>> Stashed changes
             } else {
                 setPosts(prev => [...prev, ...(data || [])]);
             }
@@ -197,25 +238,6 @@ export default function Feed({ route, navigation }: any) {
     }
 
     return (
-<<<<<<< Updated upstream
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <FlashList
-                style={styles.container}
-                data={posts}
-                renderItem={({ item }) => {
-                    return <CompanyPostCard
-                        post={item}
-                        route={route}
-                        navigation={navigation}
-                        isFirstInFeed={item.id === firstPostId}
-                    />;
-                }}
-                estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
-                onEndReached={loadMore}
-                onEndReachedThreshold={0.3}
-            />
-        </SafeAreaView>
-=======
         <PaperProvider>
             <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
                 <View style={styles.header}>
@@ -252,28 +274,37 @@ export default function Feed({ route, navigation }: any) {
                 </View>
 
                 {/* Llist of Posts */}
-                <FlashList
-                    ref={listRef}
-                    style={styles.container}
-                    data={posts}
-                    renderItem={({ item }) => {
-                        return <CompanyPostCard 
-                            post={item} 
-                            route={route} 
-                            navigation={navigation} 
-                            isFirstInFeed={item.id === firstPostId} 
-                        />; 
-                    }}
-                    estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
-                    onEndReached={loadMore}
-                    onEndReachedThreshold={0.3}
-                    onScroll={handleScroll}
-                />
+                {posts.length > 0 ? (
+                    <FlashList
+                        ref={listRef}
+                        style={styles.container}
+                        data={posts}
+                        renderItem={({ item }) => {
+                            return <CompanyPostCard 
+                                post={item} 
+                                route={route} 
+                                navigation={navigation} 
+                                isFirstInFeed={item.id === firstPostId} 
+                            />; 
+                        }}
+                        estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
+                        onEndReached={loadMore}
+                        onEndReachedThreshold={0.6}
+                        onScroll={handleScroll}
+                    />
+                ) : (
+                    <Text>{
+                        loading ? '' 
+                        : `No Posts to show${filtersHaveChangedFromDefault ? ' based on the filters you selected. Try changing your filters or pull down to refresh.' : '. Please pull down to refresh.'}`
+                    }</Text>
+                )}
 
                 {/* Filter Modal */}
                 <FilterModal 
                     isVisible={filterModalVisible}
                     onClose={toggleFilterModal}
+                    onApplyFilters={handleApplyFilters}
+                    currentFilters={filters}
                 />
 
                 {/* Back to Top button */}
@@ -288,7 +319,6 @@ export default function Feed({ route, navigation }: any) {
                 </Animated.View>
             </SafeAreaView>
         </PaperProvider>
->>>>>>> Stashed changes
     )
 }
 

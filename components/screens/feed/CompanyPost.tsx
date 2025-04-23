@@ -22,6 +22,7 @@ import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { PostStatus } from '../../../types/posts';
 import Modal from 'react-native-modal';
+import { formatPostStatus } from '../../../util/formatText';
 
 export default function CompanyPost({ _route, navigation }: any) {
     const { currentPost, clearCurrentPost } = useCurrentPost();
@@ -280,7 +281,7 @@ export default function CompanyPost({ _route, navigation }: any) {
                                 },
                             ]}
                         >
-                            <Text style={styles.pillText}>Status: {status}</Text>
+                            <Text style={styles.pillText}>Status: {formatPostStatus(status)}</Text>
                         </View>
                     </View>
                 </View>
