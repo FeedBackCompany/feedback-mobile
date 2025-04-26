@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -7,11 +7,11 @@ import {
     TextInput,
     Switch,
     ScrollView,
-} from 'react-native'
-import { useCurrentUser } from '../../hooks/useCurrentUser'
-import { EventRegister } from 'react-native-event-listeners'
-import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons'
-import { supabase } from '../../lib/supabase'
+} from 'react-native';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { EventRegister } from 'react-native-event-listeners';
+import { AntDesign, MaterialIcons, FontAwesome6 } from '@expo/vector-icons';
+import { supabase } from '../../lib/supabase';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function UserAdminSettings({ navigation, route }: any) {
