@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -7,13 +7,13 @@ import {
     TextInput,
     Image,
     Alert,
-} from 'react-native'
-import { useCurrentUser } from '../../hooks/useCurrentUser'
-import { EventRegister } from 'react-native-event-listeners'
-import { MaterialIcons, Ionicons } from '@expo/vector-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+} from 'react-native';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { EventRegister } from 'react-native-event-listeners';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../lib/supabase';
 
 export default function CompanyAdminSettings({ _navigation, route }: any) {
     const { logoutUser } = useCurrentUser()
@@ -62,11 +62,8 @@ export default function CompanyAdminSettings({ _navigation, route }: any) {
                 return;
             }
 
-            console.log('result.assets', result.assets);
-
             const imageUri = result.assets[0].uri;
 
-            // console.log('imageuri', imageUri);
             const fileName = `${Date.now()}-${imageUri.split('/').pop()}`;
             const fileType = result.assets[0].mimeType || '';
 
@@ -81,7 +78,6 @@ export default function CompanyAdminSettings({ _navigation, route }: any) {
             const formData = new FormData();
             formData.append('file', blob)
 
-            console.log('fileName', fileName);
             // Upload to Supabase
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
@@ -89,9 +85,8 @@ export default function CompanyAdminSettings({ _navigation, route }: any) {
                     contentType: 'multipart/form-data'
                 });
 
-            console.log('uploadError', uploadError);
-
             if (uploadError) {
+                console.log('uploadError', uploadError);
                 Alert.alert('Upload Error', uploadError.message);
                 return;
             }
@@ -168,7 +163,6 @@ export default function CompanyAdminSettings({ _navigation, route }: any) {
             }
 
             // Update local state if successful
-            // console.log('Profile updated successfully:', data)
             setLegalName(newLegalName)
             setName(newName)
             setEmail(newEmail)

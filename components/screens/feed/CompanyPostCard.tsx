@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Card, Title, Paragraph, Text } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { CurrencyDisplay } from '../../ui/CurrencyDisplay';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 import type { PostWithRelations } from '../../../types/posts';
 import { VisitedScreen } from '../../../types/profiles';
@@ -19,6 +19,8 @@ import { VisitedScreen } from '../../../types/profiles';
 import { useBookmarks } from '../../../hooks/useBookmarks';
 import { useCurrentPost } from '../../../hooks/useCurrentPost';
 import { useVisitedScreens } from '../../../hooks/useVisitedScreens';
+import { StatusDisplay } from '../../ui/StatusDisplay';
+import { RewardDisplay } from '../../ui/RewardDisplay';
 
 interface CompanyPostCardProps {
     route: any;
@@ -118,10 +120,10 @@ export default function CompanyPostCard({ navigation, post, isFirstInFeed }: Com
                 >
                     <FontAwesome name={`bookmark${userHasBookmarked ? '' : '-o'}`} size={42} color={userHasBookmarked ? 'black' : 'goldenrod'} />
                 </Pressable>
-                <View style={styles.companyProfileAction}>
-                    <Text style={{ color: 'white', marginBottom: 3 }}>Go to Company</Text>
-                    <Text style={{ color: 'white' }}>Profile {'->'}</Text>
-                </View>
+                <Pressable onPress={navigateToCompanyProfile} style={styles.companyProfileAction}>
+                    <Text style={{ color: 'white', fontWeight: 'bold', marginBottom: 3 }}>Go to Company</Text>
+                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Profile <FontAwesome6 name="building-circle-arrow-right" size={15} color="white" /></Text>
+                </Pressable>
             </View>
         );
     };
@@ -130,15 +132,18 @@ export default function CompanyPostCard({ navigation, post, isFirstInFeed }: Com
         return (
             <View style={styles.leftActionsContainer}>
                 <View style={styles.commentAction}>
-                    <FontAwesome name="comments" size={42} color="white" />
-                    <Text style={{ color: 'white', marginTop: 8 }}>View Post</Text>
+                    <FontAwesome6 name="arrow-right-to-bracket" size={42} color="white" />
+                    <Text style={{ color: 'white', fontWeight: 'bold', marginTop: 8 }}>View Post</Text>
                 </View>
             </View>
         );
     };
 
+    const navigateToCompanyProfile = () => {
+        navigation.navigate('Company Profile', { companyId: post.company_id });
+    }
+
     const navigateToPost = () => {
-        console.log(post)
         updateCurrentPost(post);
         navigation.navigate('Company Post');
     }
@@ -157,7 +162,7 @@ export default function CompanyPostCard({ navigation, post, isFirstInFeed }: Com
             rightThreshold={30}
             leftThreshold={90}
             onSwipeableWillOpen={(direction) => {
-                if (direction === 'left') {
+                if (direction === 'right') {
                     handleSwipeLeftComplete();
                 }
             }}
@@ -167,14 +172,13 @@ export default function CompanyPostCard({ navigation, post, isFirstInFeed }: Com
                     <Card style={styles.card}>
                         {signedUrl && <Card.Cover source={{ uri: signedUrl }} />}
                         <Card.Content>
-                            <Title>{name}</Title>
-                            <Title>{title}</Title>
-                            <Paragraph>{description}</Paragraph>
-                            <Text variant="labelMedium">
-                                Reward:
-                                <CurrencyDisplay amount={Number(reward)} type={'USD'} />
-                            </Text>
-                            <Text variant="labelMedium">Status: {status}</Text>
+                            <Text variant="titleLarge">{name}</Text>
+                            <Text variant="titleSmall">{title}</Text>
+                            <Text variant="bodyMedium">{description}</Text>
+                            <View style={styles.metaRow}>
+                                <RewardDisplay reward={reward} fit />
+                                <StatusDisplay status={status} fit />
+                            </View>
                         </Card.Content>
                     </Card>
                     {isFirstInFeed && !hasScreenBeenVisited(VisitedScreen.FEED) && (
@@ -204,12 +208,16 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     card: {
-        height: 210,
+        minHeight: 150,
         margin: 12,
         padding: 12,
         borderRadius: 3,
         zIndex: 1,
         backgroundColor: 'white'
+    },
+    metaRow: {
+        flexDirection: 'column',
+        gap: 8,
     },
     actionsContainer: {
         marginRight: 15,
@@ -240,7 +248,7 @@ const styles = StyleSheet.create({
         borderRadius: 3
     },
     bookmarkAction: {
-        height: 90,
+        height: '45%',
         width: 150,
         borderWidth: 1,
         borderStyle: 'solid',
@@ -259,7 +267,7 @@ const styles = StyleSheet.create({
     },
     companyProfileAction: {
         marginBottom: 12,
-        height: 90,
+        height: '45%',
         width: 150,
         backgroundColor: 'black',
         justifyContent: 'center',

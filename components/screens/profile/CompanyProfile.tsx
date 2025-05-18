@@ -14,7 +14,6 @@ export default function CompanyProfile({ route, navigation }: any) {
     const [signedUrl, setSignedUrl] = useState('');
     const isMounted = useRef(true);
     const [isFollowing, setIsFollowing] = useState(false);
-    console.log("\n== route.params.companyId ==\n", route?.params?.companyId, "\n");
     const companyId = route?.params?.companyId || user?.id;
 
     const checkIfFollowing = useCallback(async () => {

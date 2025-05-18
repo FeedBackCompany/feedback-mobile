@@ -86,16 +86,6 @@ export default function StackNavigator({ route }: any) {
                 component={isCompany ? CompanyProfile : Profile}
                 options={{ headerShown: false }}
             />
-            <Stack.Screen
-                name="Company Post In Profile"
-                component={CompanyPost}
-                options={{
-                    headerShown: false,
-                    animation: 'fade',
-                    presentation: 'card',
-                    animationDuration: 100
-                }}
-            />
             <Stack.Screen name="UserAdminSettings"
                 component={UserAdminSettings}
                 options={{ headerShown: false }}
