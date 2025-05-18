@@ -13,16 +13,15 @@ import {
     Pressable,
 } from 'react-native';
 import { Text } from 'react-native-paper';
-import { CurrencyDisplay } from '../../ui/CurrencyDisplay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCurrentPost } from '../../../hooks/useCurrentPost';
 import { supabase } from '../../../lib/supabase';
 import { CommentVotes } from '../CommentVotes';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import { PostStatus } from '../../../types/posts';
 import Modal from 'react-native-modal';
-import { formatPostStatus } from '../../../util/formatText';
+import { StatusDisplay } from '../../ui/StatusDisplay';
+import { RewardDisplay } from '../../ui/RewardDisplay';
 
 export default function CompanyPost({ _route, navigation }: any) {
     const { currentPost, clearCurrentPost } = useCurrentPost();
@@ -267,22 +266,8 @@ export default function CompanyPost({ _route, navigation }: any) {
                     <Text style={styles.postDescription}>{description}</Text>
 
                     <View style={styles.metaRow}>
-                        <View style={styles.pill}>
-                            <Text style={styles.pillText}>
-                                Reward: <CurrencyDisplay amount={Number(reward)} type={'USD'} />
-                            </Text>
-                        </View>
-                        <View
-                            style={[
-                                styles.pill,
-                                {
-                                    backgroundColor:
-                                        status === PostStatus.OPEN ? '#d1f7c4' : '#fdd',
-                                },
-                            ]}
-                        >
-                            <Text style={styles.pillText}>Status: {formatPostStatus(status)}</Text>
-                        </View>
+                        <RewardDisplay reward={reward} />
+                        <StatusDisplay status={status} />
                     </View>
                 </View>
 
@@ -407,16 +392,6 @@ const styles = StyleSheet.create({
     metaRow: {
         flexDirection: 'row',
         gap: 8,
-    },
-    pill: {
-        backgroundColor: '#e0e0e0',
-        paddingVertical: 4,
-        paddingHorizontal: 10,
-        borderRadius: 12,
-    },
-    pillText: {
-        fontSize: 13,
-        color: '#333',
     },
     sectionTitle: {
         fontWeight: 'bold',

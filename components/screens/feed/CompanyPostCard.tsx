@@ -19,6 +19,9 @@ import { VisitedScreen } from '../../../types/profiles';
 import { useBookmarks } from '../../../hooks/useBookmarks';
 import { useCurrentPost } from '../../../hooks/useCurrentPost';
 import { useVisitedScreens } from '../../../hooks/useVisitedScreens';
+import { formatPostStatus } from '../../../util/formatText';
+import { StatusDisplay } from '../../ui/StatusDisplay';
+import { RewardDisplay } from '../../ui/RewardDisplay';
 
 interface CompanyPostCardProps {
     route: any;
@@ -167,14 +170,13 @@ export default function CompanyPostCard({ navigation, post, isFirstInFeed }: Com
                     <Card style={styles.card}>
                         {signedUrl && <Card.Cover source={{ uri: signedUrl }} />}
                         <Card.Content>
-                            <Title>{name}</Title>
-                            <Title>{title}</Title>
-                            <Paragraph>{description}</Paragraph>
-                            <Text variant="labelMedium">
-                                Reward:
-                                <CurrencyDisplay amount={Number(reward)} type={'USD'} />
-                            </Text>
-                            <Text variant="labelMedium">Status: {status}</Text>
+                            <Text variant="titleLarge">{name}</Text>
+                            <Text variant="titleSmall">{title}</Text>
+                            <Text variant="bodyMedium">{description}</Text>
+                            <View style={styles.metaRow}>
+                                <RewardDisplay reward={reward} fit />
+                                <StatusDisplay status={status} fit />
+                            </View>
                         </Card.Content>
                     </Card>
                     {isFirstInFeed && !hasScreenBeenVisited(VisitedScreen.FEED) && (
@@ -204,12 +206,16 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     card: {
-        height: 210,
+        height: 180,
         margin: 12,
         padding: 12,
         borderRadius: 3,
         zIndex: 1,
         backgroundColor: 'white'
+    },
+    metaRow: {
+        flexDirection: 'column',
+        gap: 8,
     },
     actionsContainer: {
         marginRight: 15,

@@ -273,31 +273,33 @@ export default function Feed({ route, navigation }: any) {
                     </Menu>
                 </View>
 
-                {/* Llist of Posts */}
-                {posts.length > 0 ? (
-                    <FlashList
-                        ref={listRef}
-                        style={styles.container}
-                        data={posts}
-                        renderItem={({ item }) => {
-                            return <CompanyPostCard 
-                                post={item} 
-                                route={route} 
-                                navigation={navigation} 
-                                isFirstInFeed={item.id === firstPostId} 
-                            />; 
-                        }}
-                        estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
-                        onEndReached={loadMore}
-                        onEndReachedThreshold={0.6}
-                        onScroll={handleScroll}
-                    />
-                ) : (
-                    <Text>{
-                        loading ? '' 
-                        : `No Posts to show${filtersHaveChangedFromDefault ? ' based on the filters you selected. Try changing your filters or pull down to refresh.' : '. Please pull down to refresh.'}`
-                    }</Text>
-                )}
+                {/* List of Posts */}
+                <View style={styles.container}>
+                    {posts.length > 0 ? (
+                        <FlashList
+                            ref={listRef}
+                            contentContainerStyle={styles.listContent}
+                            data={posts}
+                            renderItem={({ item }) => {
+                                return <CompanyPostCard 
+                                    post={item} 
+                                    route={route} 
+                                    navigation={navigation} 
+                                    isFirstInFeed={item.id === firstPostId} 
+                                />; 
+                            }}
+                            estimatedItemSize={9} // ! Making this value larger affects the inifinte loading
+                            onEndReached={loadMore}
+                            onEndReachedThreshold={0.6}
+                            onScroll={handleScroll}
+                        />
+                    ) : (
+                        <Text>{
+                            loading ? '' 
+                            : `No Posts to show${filtersHaveChangedFromDefault ? ' based on the filters you selected. Try changing your filters or pull down to refresh.' : '. Please pull down to refresh.'}`
+                        }</Text>
+                    )}
+                </View>
 
                 {/* Filter Modal */}
                 <FilterModal 
@@ -327,6 +329,12 @@ const styles = StyleSheet.create({
         position: 'relative',
         height: '100%',
         width: '100%',
+    },
+    listContent: {
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        // Only use content-related styles here
+        // No position, height, or width properties
     },
     // Scroll to top
     scrollToTopContainer: {
