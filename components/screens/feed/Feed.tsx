@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: 16,
         paddingVertical: 16,
+        paddingBottom: 144
         // Only use content-related styles here
         // No position, height, or width properties
     },

@@ -68,7 +68,7 @@ export default function SearchAll({ searchQuery, navigation }: SearchProps) {
 
     const handleCompanyPress = (companyId: string) => {
         // updateCurrentPost(post);
-        // navigation.navigate('Company Post In Profile')
+        // navigation.navigate('Company Post')
         navigation.navigate('Company Profile', { companyId });
     };
 

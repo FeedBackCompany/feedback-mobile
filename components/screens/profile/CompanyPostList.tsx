@@ -30,9 +30,8 @@ export default function CompanyPostList({ companyId, navigation }: { companyId: 
     }, [companyId]);
 
     const navigateToPost = (post: PostWithRelations) => {
-        console.log('post', post)
         updateCurrentPost(post);
-        navigation.navigate('Company Post In Profile')
+        navigation.navigate('Company Post')
     }
 
     const renderPost = ({ item }: { item: PostWithRelations }) => (

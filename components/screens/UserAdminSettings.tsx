@@ -86,7 +86,6 @@ export default function UserAdminSettings({ navigation, route }: any) {
                 return
             }
 
-            console.log('Profile updated successfully:', data)
             setUsername(newUsername)
             setFullName(newFullName)
             setBio(newBio)
