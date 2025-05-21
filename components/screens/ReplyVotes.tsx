@@ -4,13 +4,11 @@ import { Entypo } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 
-interface CommentVotesProps {
-    commentId: string;
-    commenterId: string;
-    companyId: string;
+interface ReplyVotesProps {
+    replyId: string;
 }
 
-const CommentVotesComponent = ({ commentId }: CommentVotesProps) => {
+const ReplyVotesComponent = ({ replyId }: ReplyVotesProps) => {
     const [hasLiked, setHasLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
     const { user } = useCurrentUser();
@@ -18,18 +16,18 @@ const CommentVotesComponent = ({ commentId }: CommentVotesProps) => {
     useEffect(() => {
         if (!user?.id) return;
         fetchLikes();
-    }, [commentId, user?.id]);
+    }, [replyId, user?.id]);
 
     const fetchLikes = async () => {
         try {
             const { data, error } = await supabase
-                .from('comment_votes')
+                .from('reply_votes')
                 .select('user_id')
-                .eq('comment_id', commentId);
+                .eq('reply_id', replyId);
 
             if (error) throw error;
 
-            const userHasLiked = data.some((like: any) => like.user_id === user?.id);
+            const userHasLiked = data.some((like) => like.user_id === user?.id);
             setHasLiked(userHasLiked);
             setLikeCount(data.length);
         } catch (error) {
@@ -50,16 +48,16 @@ const CommentVotesComponent = ({ commentId }: CommentVotesProps) => {
         try {
             if (hasLiked) {
                 const { error } = await supabase
-                    .from('comment_votes')
+                    .from('reply_votes')
                     .delete()
-                    .eq('comment_id', commentId)
+                    .eq('reply_id', replyId)
                     .eq('user_id', user.id);
 
                 if (error) throw error;
             } else {
-                const { error } = await supabase.from('comment_votes').insert([
+                const { error } = await supabase.from('reply_votes').insert([
                     {
-                        comment_id: commentId,
+                        reply_id: replyId,
                         user_id: user.id,
                     },
                 ]);
@@ -102,4 +100,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export const CommentVotes = React.memo(CommentVotesComponent);
+export const ReplyVotes = React.memo(ReplyVotesComponent);

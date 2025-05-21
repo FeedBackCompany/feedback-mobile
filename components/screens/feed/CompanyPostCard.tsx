@@ -168,7 +168,7 @@ export default function CompanyPostCard({ navigation, post, isFirstInFeed }: Com
             }}
         >
             <Animated.View style={[styles.container, animatedStyles]}>
-                <Pressable onPress={navigateToPost} onPressIn={handlePressIn} style={styles.container}>
+                <Pressable onPressOut={navigateToPost} onPressIn={handlePressIn} style={styles.container}>
                     <Card style={styles.card}>
                         {signedUrl && <Card.Cover source={{ uri: signedUrl }} />}
                         <Card.Content>

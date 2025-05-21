@@ -1,5 +1,5 @@
 import React from 'react';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+const { getFocusedRouteNameFromRoute } = require('@react-navigation/native');
 import { Ionicons } from '@expo/vector-icons';
 import { Tab } from '../lib/navigation';
 import StackNavigator from './StackNavigator';

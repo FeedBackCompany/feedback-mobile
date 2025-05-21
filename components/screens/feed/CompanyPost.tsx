@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
     View,
     TextInput,
@@ -11,6 +11,7 @@ import {
     TouchableWithoutFeedback,
     Alert,
     Pressable,
+    Modal
 } from 'react-native';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,11 +20,11 @@ import { supabase } from '../../../lib/supabase';
 import { CommentVotes } from '../CommentVotes';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import Modal from 'react-native-modal';
 import { StatusDisplay } from '../../ui/StatusDisplay';
 import { RewardDisplay } from '../../ui/RewardDisplay';
+import { ReplyVotes } from '../ReplyVotes';
 
-export default function CompanyPost({ _route, navigation }: any) {
+export default function CompanyPost({ navigation }: any) {
     const { currentPost, clearCurrentPost } = useCurrentPost();
     const [comments, setComments] = useState<any[]>([]);
     const [newComment, setNewComment] = useState('');
@@ -33,6 +34,14 @@ export default function CompanyPost({ _route, navigation }: any) {
     const [_editedComment, setEditedComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editingText, setEditingText] = useState('');
+    const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    const [replyText, setReplyText] = useState('');
+    const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null);
+    const replyInputRef = useRef<TextInput>(null);
+    const [newReply, setNewReply] = useState('');
+    const [replies, setReplies] = useState<any[]>([]);
+    const [reRender, setReRender] = useState(false);
+
 
     const handleNavigateToFeedClick = () => {
         clearCurrentPost();
@@ -40,26 +49,52 @@ export default function CompanyPost({ _route, navigation }: any) {
     };
 
     useEffect(() => {
+        if (replyingToCommentId && replyInputRef.current) {
+            replyInputRef.current.focus();
+        }
+    }, [replyingToCommentId]);
+
+    useEffect(() => {
         if (currentPost?.id) {
             fetchComments();
         }
-    }, [currentPost]);
+    }, [currentPost, reRender]);
 
     const fetchComments = async () => {
         if (!currentPost) return;
 
-        const { data, error } = await supabase
+        const { data: commentsData, error } = await supabase
             .from('comments')
             .select('*, user:profiles(username)')
             .eq('post_id', currentPost.id)
             .order('created_at', { ascending: false });
 
-        if (!error) {
-            setComments(data || []);
-        } else {
+        if (error) {
             console.error('Error fetching comments:', error.message);
         }
-    };
+        setComments(commentsData || []);
+        const commentIds = commentsData?.map((comment: { id: string }) => comment.id) || [];
+
+        if (commentIds.length === 0) {
+            setReplies([]);
+            return;
+        }
+
+        setReRender(true);
+
+        const { data: replyData, error: replyError } = await supabase
+            .from('reply_comments')
+            .select('*, user:profiles(username)')
+            .in('comment_id', commentIds)
+            .order('created_at', { ascending: true });
+
+        if (!replyError) {
+            setReplies(replyData || []);
+        } else {
+            console.error('Error fetching replies:', replyError.message);
+        }
+
+    }
 
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
@@ -96,16 +131,82 @@ export default function CompanyPost({ _route, navigation }: any) {
             {
                 text: 'Delete',
                 onPress: async () => {
-                    const { error } = await supabase.from('comments').delete().eq('id', commentId);
-                    if (error) {
-                        console.error('Error deleting comment:', error.message);
-                        return;
+                    if (selectedComment?.isReply) {
+                        // Delete just the reply
+                        const { error } = await supabase
+                            .from('reply_comments')
+                            .delete()
+                            .eq('id', commentId);
+
+                        if (error) {
+                            console.error('Error deleting reply:', error.message);
+                            return;
+                        }
+
+                        setReplies((prev) => prev.filter((r) => r.id !== commentId));
+                    } else {
+                        // First delete all replies for the parent comment
+                        const { error: replyError } = await supabase
+                            .from('reply_comments')
+                            .delete()
+                            .eq('comment_id', commentId);
+
+                        if (replyError) {
+                            console.error('Error deleting replies:', replyError.message);
+                            return;
+                        }
+
+                        // Then delete the parent comment
+                        const { error: commentError } = await supabase
+                            .from('comments')
+                            .delete()
+                            .eq('id', commentId);
+
+                        if (commentError) {
+                            console.error('Error deleting comment:', commentError.message);
+                            return;
+                        }
+
+                        setComments((prev) => prev.filter((c) => c.id !== commentId));
+                        setReplies((prev) => prev.filter((r) => r.comment_id !== commentId)); // Cleanup from UI
                     }
-                    setComments((prev) => prev.filter((comment) => comment.id !== commentId));
                 },
                 style: 'destructive',
             },
         ]);
+    };
+
+
+    const handleAddReply = async () => {
+        if (!newReply.trim()) return;
+
+        const { data: userData } = await supabase.auth.getUser();
+
+        if (!userData || !userData.user) {
+            console.error('User not logged in');
+            return;
+        }
+
+        const userId = userData.user.id;
+        if (!currentPost) return;
+
+        const { error, data } = await supabase
+            .from('reply_comments')
+            .insert([{ comment_id: replyingToCommentId, user_id: userId, body: newReply.trim() }])
+            .select('*, user:profiles(username)')
+            .single();
+
+        if (error) {
+            console.error('Error posting reply:', error.message);
+            return;
+        }
+
+        setReplies((prev) => [data, ...prev]);
+        setNewReply('');
+        Keyboard.dismiss();
+
+        // refetch replies and comments to refresh UI fully
+        await fetchComments();
     };
 
     if (!currentPost) {
@@ -142,6 +243,103 @@ export default function CompanyPost({ _route, navigation }: any) {
         return 'just now';
     };
 
+    const renderReplyItem = useCallback(
+        ({ item }: any) => (
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.commentItem}>
+                    <View style={styles.commentHeader}>
+                        <TouchableOpacity
+                            style={styles.userInfoContainer}
+                            onPress={() =>
+                                navigation.navigate('Public Profile', {
+                                    userId: item.user_id,
+                                })
+                            }
+                        >
+                            <View style={styles.userImageWrapper}>
+                                <AntDesign name="user" size={18} color="gray" />
+                            </View>
+                            <Text style={styles.commentUser}>{item.user.username}</Text>
+                            <Text style={styles.commentTimeAgo}>{timeAgo(item.created_at)}</Text>
+                        </TouchableOpacity>
+
+                        {item.user_id === user?.id && (
+                            <TouchableOpacity
+                                onPress={() => {
+                                    console.log("\n== item ==\n", item, "\n");
+                                    setSelectedComment({ ...item, isReply: true });
+                                    setEditedComment(item.body);
+                                    setCommentModalVisible(true);
+                                }}
+                            >
+                                <Text style={{ fontSize: 18 }}>⋯</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                    {editingCommentId === item.id ? (
+                        <View>
+                            <TextInput
+                                value={editingText}
+                                onChangeText={setEditingText}
+                                style={[styles.commentInput, { marginBottom: 8 }]}
+                                multiline
+                            />
+                            <View style={{ flexDirection: 'row', gap: 8 }}>
+                                <TouchableOpacity
+                                    style={[styles.sendButton, { backgroundColor: '#4CAF50' }]}
+                                    onPress={async () => {
+                                        if (!editingText.trim()) return;
+                                        const { error } = await supabase
+                                            .from('reply_comments')
+                                            .update({ body: editingText.trim() })
+                                            .eq('id', item.id);
+
+                                        if (!error) {
+                                            setReplies((prev) =>
+                                                prev.map((c) =>
+                                                    c.id === item.id
+                                                        ? { ...c, body: editingText.trim() }
+                                                        : c
+                                                )
+                                            );
+                                            setEditingCommentId(null);
+                                            setCommentModalVisible(false);
+                                        } else {
+                                            console.error('Error updating reply:', error.message);
+                                        }
+                                    }}
+                                >
+                                    <Text style={styles.sendButtonText}>Update</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[styles.sendButton, { backgroundColor: '#999' }]}
+                                    onPress={() => {
+                                        setEditingCommentId(null);
+                                        setCommentModalVisible(false);
+                                    }}
+                                >
+                                    <Text style={styles.sendButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ) : (
+                        <Text style={styles.commentText}>{item.body}</Text>
+                    )}
+
+                    <View style={styles.commentVoteWrapper}>
+                        <ReplyVotes
+                            replyId={item.id}
+                        />
+                    </View>
+
+                </View>
+            </TouchableWithoutFeedback>
+        ),
+        [replies, user, navigation, comments, editingCommentId, editingText] // keep this list updated with actual state/props used inside
+    );
+
     const renderCommentItem = useCallback(
         ({ item }: any) => (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -165,7 +363,8 @@ export default function CompanyPost({ _route, navigation }: any) {
                         {item.user_id === user?.id && (
                             <TouchableOpacity
                                 onPress={() => {
-                                    setSelectedComment(item);
+                                    console.log("\n== item ==\n", item, "\n");
+                                    setSelectedComment({ ...item, isReply: false });
                                     setEditedComment(item.body);
                                     setCommentModalVisible(true);
                                 }}
@@ -233,10 +432,39 @@ export default function CompanyPost({ _route, navigation }: any) {
                             companyId={id}
                         />
                     </View>
+
+                    <TouchableOpacity
+                        onPress={() => {
+                            setReplyingToCommentId(item.id)
+                        }}
+                    >
+                        <Text style={styles.replyButtonText}>Reply</Text>
+                    </TouchableOpacity>
+
+                    <FlatList
+                        data={replies.filter((reply) => reply.comment_id === item.id)}
+                        keyExtractor={(item) => item.id}
+                        keyboardShouldPersistTaps="always"
+                        renderItem={renderReplyItem}
+                        contentContainerStyle={{ paddingBottom: 20 }}
+                        ListEmptyComponent={
+                            <Text style={{ color: 'gray', marginTop: 10, textAlign: 'center' }}>
+                                No replies yet.
+                            </Text>
+                        }
+                        ListHeaderComponent={
+                            <Pressable
+                                style={{ height: 1, width: '100%' }}
+                                onLongPress={() => { }}
+                            />
+                        }
+                        style={styles.commentList}
+                    />
+
                 </View>
             </TouchableWithoutFeedback>
         ),
-        [comments, user, editingCommentId, editingText, navigation] // keep this list updated with actual state/props used inside
+        [comments, user, editingCommentId, editingText, navigation, replies] // keep this list updated with actual state/props used inside
     );
 
 
@@ -295,24 +523,16 @@ export default function CompanyPost({ _route, navigation }: any) {
 
                 {/* MODAL */}
                 <Modal
-                    isVisible={commentModalVisible}
-                    onBackdropPress={() => setCommentModalVisible(false)}
-                    onSwipeComplete={() => setCommentModalVisible(false)}
-                    swipeDirection="down"
-                    backdropOpacity={0}
-                    useNativeDriver
-                    propagateSwipe
-                    animationIn="slideInUp"
-                    animationOut="slideOutDown"
-                    style={styles.bottomModal}
-                    backdropTransitionOutTiming={0}
-                    animationInTiming={600}
-                    animationOutTiming={700}
+                    visible={commentModalVisible}
+                    onRequestClose={() => setCommentModalVisible(false)}
+                    animationType={'slide'}
+                    transparent={true}
+                    presentationStyle={'overFullScreen'}
                 >
                     <View style={styles.modalBackdrop}>
                         <Pressable style={{ flex: 1 }} onPress={() => setCommentModalVisible(false)} />
                         <View style={styles.modalContainer}>
-                            <View style={styles.modalHandle} />
+                            {/* <View style={styles.modalHandle} /> */}
                             <Text style={styles.modalTitle}>Manage Comment</Text>
 
                             <TouchableOpacity
@@ -343,21 +563,47 @@ export default function CompanyPost({ _route, navigation }: any) {
                     </View>
                 </Modal>
 
+                <View>
+                    {editingCommentId === null && !replyingToCommentId && (
+                        <View style={styles.commentInputContainer}>
+                            <TextInput
+                                placeholder="Write a comment..."
+                                style={[styles.commentInput, { maxHeight: 120 }]}
+                                value={newComment}
+                                onChangeText={setNewComment}
+                                multiline
+                            />
+                            <TouchableOpacity onPress={handleAddComment} style={styles.sendButton}>
+                                <Text style={styles.sendButtonText}>Post</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    {editingCommentId === null && replyingToCommentId && (
+                        <View style={styles.commentInputContainer}>
+                            <TextInput
+                                ref={replyInputRef}
+                                placeholder="Reply to comment..."
+                                style={[styles.commentInput, { maxHeight: 120 }]}
+                                value={newReply}
+                                onChangeText={setNewReply}
+                                multiline
+                                onBlur={() => {
+                                    setTimeout(() => {
+                                        if (replyingToCommentId) {
+                                            setNewReply('');
+                                            setReplyingToCommentId(null);
+                                        }
+                                    }, 100); // Wait 100ms to allow Post press to go through
+                                }}
+                            />
+                            <TouchableOpacity onPress={handleAddReply} style={styles.sendButton}>
+                                <Text style={styles.sendButtonText}>Post</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
 
-                {editingCommentId === null && (
-                    <View style={styles.commentInputContainer}>
-                        <TextInput
-                            placeholder="Write a comment..."
-                            style={[styles.commentInput, { maxHeight: 120 }]}
-                            value={newComment}
-                            onChangeText={setNewComment}
-                            multiline
-                        />
-                        <TouchableOpacity onPress={handleAddComment} style={styles.sendButton}>
-                            <Text style={styles.sendButtonText}>Post</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
+
             </SafeAreaView>
         </KeyboardAvoidingView>
     );
@@ -499,7 +745,7 @@ const styles = StyleSheet.create({
         margin: 0,
     },
     modalContainer: {
-        backgroundColor: '#000',
+        backgroundColor: 'rgba(9, 9, 9, 0.94)',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         padding: 16,
@@ -541,4 +787,38 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         borderRadius: 8,
     },
+    replyButtonText: {
+        color: 'blue',
+    },
+
+    replyInput: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 6,
+        padding: 8,
+        marginTop: 4,
+    },
+    replyItem: {
+        marginTop: 6,
+        marginLeft: 24,
+        backgroundColor: '#f9f9f9',
+        padding: 8,
+        borderRadius: 6,
+    },
+    replyHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+        gap: 6,
+    },
+    replyUsername: {
+        fontWeight: 'bold',
+        fontSize: 13,
+    },
+    replyTimeAgo: {
+        color: 'gray',
+        fontSize: 11,
+    },
+    replyText: {
+        fontSize: 14,
+    }
 });
