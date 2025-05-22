@@ -41,7 +41,7 @@ export default function CompanyPost({ navigation }: any) {
     const [newReply, setNewReply] = useState('');
     const [replies, setReplies] = useState<any[]>([]);
     const [reRender, setReRender] = useState(false);
-
+    const [visibleReplies, setVisibleReplies] = useState<{ [commentId: string]: boolean }>({});
 
     const handleNavigateToFeedClick = () => {
         clearCurrentPost();
@@ -240,7 +240,14 @@ export default function CompanyPost({ navigation }: any) {
             }
         }
 
-        return 'just now';
+        return ' just now';
+    };
+
+    const toggleReplies = (commentId: string) => {
+        setVisibleReplies((prev) => ({
+            ...prev,
+            [commentId]: !prev[commentId],
+        }));
     };
 
     const renderReplyItem = useCallback(
@@ -341,130 +348,153 @@ export default function CompanyPost({ navigation }: any) {
     );
 
     const renderCommentItem = useCallback(
-        ({ item }: any) => (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={styles.commentItem}>
-                    <View style={styles.commentHeader}>
-                        <TouchableOpacity
-                            style={styles.userInfoContainer}
-                            onPress={() =>
-                                navigation.navigate('Public Profile', {
-                                    userId: item.user_id,
-                                })
-                            }
-                        >
-                            <View style={styles.userImageWrapper}>
-                                <AntDesign name="user" size={18} color="gray" />
-                            </View>
-                            <Text style={styles.commentUser}>{item.user.username}</Text>
-                            <Text style={styles.commentTimeAgo}>{timeAgo(item.created_at)}</Text>
-                        </TouchableOpacity>
+        ({ item }: any) => {
 
-                        {item.user_id === user?.id && (
+            const commentReplies = replies.filter((reply) => reply.comment_id === item.id);
+            const hasReplies = commentReplies.length > 0;
+            const isVisible = visibleReplies[item.id];
+
+            return (
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.commentItem}>
+                        <View style={styles.commentHeader}>
                             <TouchableOpacity
-                                onPress={() => {
-                                    console.log("\n== item ==\n", item, "\n");
-                                    setSelectedComment({ ...item, isReply: false });
-                                    setEditedComment(item.body);
-                                    setCommentModalVisible(true);
-                                }}
+                                style={styles.userInfoContainer}
+                                onPress={() =>
+                                    navigation.navigate('Public Profile', {
+                                        userId: item.user_id,
+                                    })
+                                }
                             >
-                                <Text style={{ fontSize: 18 }}>⋯</Text>
+                                <View style={styles.userImageWrapper}>
+                                    <AntDesign name="user" size={18} color="gray" />
+                                </View>
+                                <Text style={styles.commentUser}>{item.user.username}</Text>
+                                <Text style={styles.commentTimeAgo}>{timeAgo(item.created_at)}</Text>
                             </TouchableOpacity>
-                        )}
-                    </View>
 
-                    {editingCommentId === item.id ? (
-                        <View>
-                            <TextInput
-                                value={editingText}
-                                onChangeText={setEditingText}
-                                style={[styles.commentInput, { marginBottom: 8 }]}
-                                multiline
-                            />
-                            <View style={{ flexDirection: 'row', gap: 8 }}>
+                            {item.user_id === user?.id && (
                                 <TouchableOpacity
-                                    style={[styles.sendButton, { backgroundColor: '#4CAF50' }]}
-                                    onPress={async () => {
-                                        if (!editingText.trim()) return;
-                                        const { error } = await supabase
-                                            .from('comments')
-                                            .update({ body: editingText.trim() })
-                                            .eq('id', item.id);
+                                    onPress={() => {
+                                        console.log("\n== item ==\n", item, "\n");
+                                        setSelectedComment({ ...item, isReply: false });
+                                        setEditedComment(item.body);
+                                        setCommentModalVisible(true);
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 18 }}>⋯</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
 
-                                        if (!error) {
-                                            setComments((prev) =>
-                                                prev.map((c) =>
-                                                    c.id === item.id
-                                                        ? { ...c, body: editingText.trim() }
-                                                        : c
-                                                )
-                                            );
+                        {editingCommentId === item.id ? (
+                            <View>
+                                <TextInput
+                                    value={editingText}
+                                    onChangeText={setEditingText}
+                                    style={[styles.commentInput, { marginBottom: 8 }]}
+                                    multiline
+                                />
+                                <View style={{ flexDirection: 'row', gap: 8 }}>
+                                    <TouchableOpacity
+                                        style={[styles.sendButton, { backgroundColor: '#4CAF50' }]}
+                                        onPress={async () => {
+                                            if (!editingText.trim()) return;
+                                            const { error } = await supabase
+                                                .from('comments')
+                                                .update({ body: editingText.trim() })
+                                                .eq('id', item.id);
+
+                                            if (!error) {
+                                                setComments((prev) =>
+                                                    prev.map((c) =>
+                                                        c.id === item.id
+                                                            ? { ...c, body: editingText.trim() }
+                                                            : c
+                                                    )
+                                                );
+                                                setEditingCommentId(null);
+                                                setCommentModalVisible(false);
+                                            } else {
+                                                console.error('Error updating comment:', error.message);
+                                            }
+                                        }}
+                                    >
+                                        <Text style={styles.sendButtonText}>Update</Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={[styles.sendButton, { backgroundColor: '#999' }]}
+                                        onPress={() => {
                                             setEditingCommentId(null);
                                             setCommentModalVisible(false);
-                                        } else {
-                                            console.error('Error updating comment:', error.message);
-                                        }
-                                    }}
-                                >
-                                    <Text style={styles.sendButtonText}>Update</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[styles.sendButton, { backgroundColor: '#999' }]}
-                                    onPress={() => {
-                                        setEditingCommentId(null);
-                                        setCommentModalVisible(false);
-                                    }}
-                                >
-                                    <Text style={styles.sendButtonText}>Cancel</Text>
-                                </TouchableOpacity>
+                                        }}
+                                    >
+                                        <Text style={styles.sendButtonText}>Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
+                        ) : (
+                            <Text style={styles.commentText}>{item.body}</Text>
+                        )}
+
+                        <View style={styles.commentVoteWrapper}>
+                            <CommentVotes
+                                commentId={item.id}
+                                commenterId={item.user_id}
+                                companyId={id}
+                            />
                         </View>
-                    ) : (
-                        <Text style={styles.commentText}>{item.body}</Text>
-                    )}
 
-                    <View style={styles.commentVoteWrapper}>
-                        <CommentVotes
-                            commentId={item.id}
-                            commenterId={item.user_id}
-                            companyId={id}
-                        />
-                    </View>
+                        <TouchableOpacity
+                            onPress={() => {
+                                setReplyingToCommentId(item.id)
+                            }}
+                        >
+                            <Text style={styles.replyButtonText}>Reply</Text>
+                        </TouchableOpacity>
 
-                    <TouchableOpacity
-                        onPress={() => {
-                            setReplyingToCommentId(item.id)
-                        }}
-                    >
-                        <Text style={styles.replyButtonText}>Reply</Text>
-                    </TouchableOpacity>
+                        {hasReplies ? (
+                            <>
+                                <TouchableOpacity onPress={() => toggleReplies(item.id)}>
+                                    <Text style={styles.replyToggleText}>
+                                        {isVisible ? 'Hide Replies' : 'Show Replies'}
+                                    </Text>
+                                </TouchableOpacity>
 
-                    <FlatList
-                        data={replies.filter((reply) => reply.comment_id === item.id)}
-                        keyExtractor={(item) => item.id}
-                        keyboardShouldPersistTaps="always"
-                        renderItem={renderReplyItem}
-                        contentContainerStyle={{ paddingBottom: 20 }}
-                        ListEmptyComponent={
+                                {isVisible && (
+                                    <FlatList
+                                        data={commentReplies}
+                                        keyExtractor={(item) => item.id}
+                                        keyboardShouldPersistTaps="always"
+                                        renderItem={renderReplyItem}
+                                        contentContainerStyle={{ paddingBottom: 20 }}
+                                        ListEmptyComponent={
+                                            <Text style={{ color: 'gray', marginTop: 10, textAlign: 'center' }}>
+                                                No replies yet.
+                                            </Text>
+                                        }
+                                        ListHeaderComponent={
+                                            <Pressable
+                                                style={{ height: 1, width: '100%' }}
+                                                onLongPress={() => { }}
+                                            />
+                                        }
+                                        style={styles.commentList}
+                                    />
+                                )}
+                            </>
+                        ) : (
                             <Text style={{ color: 'gray', marginTop: 10, textAlign: 'center' }}>
                                 No replies yet.
                             </Text>
-                        }
-                        ListHeaderComponent={
-                            <Pressable
-                                style={{ height: 1, width: '100%' }}
-                                onLongPress={() => { }}
-                            />
-                        }
-                        style={styles.commentList}
-                    />
+                        )}
 
-                </View>
-            </TouchableWithoutFeedback>
-        ),
-        [comments, user, editingCommentId, editingText, navigation, replies] // keep this list updated with actual state/props used inside
+                    </View>
+                </TouchableWithoutFeedback>
+            )
+        },
+        [comments, user, editingCommentId, editingText, navigation, replies, toggleReplies] // keep this list updated with actual state/props used inside
     );
 
 
@@ -820,5 +850,12 @@ const styles = StyleSheet.create({
     },
     replyText: {
         fontSize: 14,
-    }
+    },
+    replyToggleText: {
+        color: '#007AFF',
+        marginTop: 10,
+        marginBottom: 5,
+        fontWeight: '500',
+        textAlign: 'left',
+    },
 });
